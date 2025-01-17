@@ -1,0 +1,27 @@
+{
+    "id": "1D822255",
+    "path": "~/Desktop/Research/Project_Decomposition/BASTION/R/main_functions.R",
+    "project_path": "R/main_functions.R",
+    "type": "r_source",
+    "hash": "2086588408",
+    "contents": "",
+    "dirty": false,
+    "created": 1736989779508.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "354,53",
+        "scrollLine": "1"
+    },
+    "folds": "11|36|289|0|\n292|62|328|0|\n330|36|333|0|\n335|66|353|0|\n399|39|462|0|\n",
+    "lastKnownWriteTime": 1737081181,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1737147838770,
+    "read_only": false,
+    "read_only_alternatives": []
+}

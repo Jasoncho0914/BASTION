@@ -1,0 +1,31 @@
+Type: Package
+Package: BASTION
+Title: Bayesian Adaptive Seasonality Trend Decomposition incorporating
+    Outliers and Noise
+Version: 0.1.0
+Author: Jason B. Cho, David S. Matteson
+Maintainer: Jason B. Cho <bc454@cornell.edu>
+Description: We introduce BASTION (Bayesian Adaptive Seasonality and Trend
+    Decomposition Incorporating Outliers and Noise), a flexible Bayesian
+    framework for decomposing time series into trend and multiple
+    seasonality components. BASTION offers three key advantages over
+    existing decomposition methods: (1) locally adaptive estimation of
+    trend and seasonality for enhanced accuracy, (2) explicit modeling of
+    outliers and time-varying volatility for greater robustness, and (3)
+    rigorous uncertainty quantification through credible intervals.
+License: MIT + file LICENSE
+Imports: 
+    abind,
+    extraDistr,
+    Matrix,
+    methods,
+    mgcv,
+    progress,
+    spam,
+    stats,
+    stochvol
+Config/testthat/edition: 3
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2

@@ -1,0 +1,8 @@
+library(BASTION)
+air<- read.table("/Users/bc454/Desktop/Research/Project_Decomposition/Data/air traffic.csv",dec = ",",header = TRUE,sep = ",")
+passenger = as.numeric(air$Int_Pax)/1000000
+seasonality = list(12)
+BASTIONfit <- fit_BASTION(y = passenger,
+                          Ks = list(12),
+                          Outlier = FALSE,
+                          sparse = TRUE)

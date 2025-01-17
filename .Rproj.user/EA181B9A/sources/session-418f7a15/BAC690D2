@@ -1,0 +1,27 @@
+{
+    "id": "BAC690D2",
+    "path": "~/Desktop/Research/Project_Decomposition/BASTION/R/Trend.R",
+    "project_path": "R/Trend.R",
+    "type": "r_source",
+    "hash": "2042859359",
+    "contents": "",
+    "dirty": false,
+    "created": 1736984062952.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "1,21",
+        "scrollLine": "0"
+    },
+    "folds": "2|67|45|0|\n49|71|64|0|\n67|42|80|0|\n83|56|102|0|\n108|60|121|0|\n127|61|141|0|\n143|63|176|0|\n183|31|225|0|\n",
+    "lastKnownWriteTime": 1737077329,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1737078849949,
+    "read_only": false,
+    "read_only_alternatives": []
+}

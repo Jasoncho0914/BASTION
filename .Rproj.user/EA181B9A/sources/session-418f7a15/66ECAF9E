@@ -1,0 +1,27 @@
+{
+    "id": "66ECAF9E",
+    "path": "~/Desktop/Research/Project_Decomposition/BASTION/R/Outlier.R",
+    "project_path": "R/Outlier.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1737006406956.0,
+    "source_on_save": false,
+    "relative_order": 5,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "100,0",
+        "scrollLine": "0"
+    },
+    "folds": "2|66|7|0|\n10|41|23|0|\n26|55|37|0|\n39|42|67|0|\n69|49|99|0|\n",
+    "lastKnownWriteTime": 1737077366,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1737077366194,
+    "read_only": false,
+    "read_only_alternatives": []
+}
