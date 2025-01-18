@@ -18,7 +18,8 @@ png("Motivation/Airline_NoCovid_STL.PNG",width = 600,height = 500)
 autoplot(ahh)
 dev.off()
 
-
+obj = fit_BASTION(y = AirPassengers,
+                  Ks = list(12))
 
 
 ################################

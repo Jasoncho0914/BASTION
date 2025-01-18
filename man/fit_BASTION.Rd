@@ -8,7 +8,7 @@ fit_BASTION(
   y,
   Ks,
   X = NULL,
-  Outlier,
+  Outlier = FALSE,
   cl = 0.95,
   sparse = FALSE,
   obsSV = "const",

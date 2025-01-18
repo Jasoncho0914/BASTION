@@ -3,7 +3,7 @@
     "path": "~/Desktop/Research/Project_Decomposition/BASTION/R/Remainder.R",
     "project_path": "R/Remainder.R",
     "type": "r_source",
-    "hash": "3379708121",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1737006442053.0,
@@ -14,14 +14,14 @@
         "source_window_id": "",
         "Source": "Source",
         "cursorPosition": "107,56",
-        "scrollLine": "99"
+        "scrollLine": "9"
     },
-    "folds": "2|33|7|0|\n10|40|24|0|\n31|35|45|0|\n53|38|67|0|\n69|40|89|0|\n91|47|119|0|\n",
-    "lastKnownWriteTime": 1737077037,
+    "folds": "",
+    "lastKnownWriteTime": 1737148289,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1737077037674,
+    "last_content_update": 1737148291860,
     "read_only": false,
     "read_only_alternatives": []
 }

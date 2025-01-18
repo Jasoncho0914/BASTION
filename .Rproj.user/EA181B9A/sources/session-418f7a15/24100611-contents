@@ -1,8 +1,76 @@
 library(BASTION)
 air<- read.table("/Users/bc454/Desktop/Research/Project_Decomposition/Data/air traffic.csv",dec = ",",header = TRUE,sep = ",")
-passenger = as.numeric(air$Int_Pax)/1000000
+air$Int_Pax = as.numeric(air$Int_Pax)/1000000
+airtraffic = air[,c("Year","Month","Int_Pax")]
+save(airtraffic, file = "data/airtraffic.rda")
 seasonality = list(12)
-BASTIONfit <- fit_BASTION(y = passenger,
-                          Ks = list(12),
-                          Outlier = FALSE,
-                          sparse = TRUE)
+fit <- fit_BASTION(y = airtraffic$Int_Pax,
+                   Ks = list(12))
+#observed data
+plot(fit$summary$p_means$y,ylim = c(-1,13),ylab = "Trend")
+lines(fit$summary$p_means$Trend,lwd = 4)
+#Yearly Seasonality
+plot(fit$summary$p_means$Seasonal12,type= "l",ylab = "Seasonality (k=12)")
+#Remainder
+plot(fit$summary$p_means$Remainder,type = "l",ylab = "Remainder")
+
+###################################################
+cex_s = 2             # Point size
+cex.axis_s_y = 1.5       # Y-axis text size
+cex.axis_s_x = 1.2       # X-axis text size
+cex.main_s = 1.5         # Main title text size
+cex.lab_s = 1.5         # Axis label text size
+lwd_s = 3              # Line width
+figure_width = 500       # Width
+figure_height = 300      # Reduced height to compact space
+png(paste0("figures/trend.PNG"),
+    width = figure_width, height = figure_height)
+plot(fit$summary$p_means$y, 
+     type = "p",
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex = cex_s, 
+     cex.axis = cex.axis_s_x, 
+     cex.main = cex.main_s,
+     axes = FALSE,
+     ylim = c(-1,13))
+lines(fit$summary$p_means$Trend,lwd = 4)
+axis(2,cex.axis = cex.axis_s_y)
+axis(1,cex.axis = cex.axis_s_x)
+title(ylab = "Trend", cex.lab = cex.lab_s, line = 2.5)
+dev.off()
+
+png(paste0("figures/seasonality.PNG"),
+    width = figure_width, height = figure_height)
+plot(fit$summary$p_means$Seasonal12,
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex = cex_s, 
+     cex.axis = cex.axis_s_x, 
+     cex.main = cex.main_s,
+     axes = FALSE,
+     type = "l",
+     lwd = 4)
+axis(2,cex.axis = cex.axis_s_y)
+axis(1,cex.axis = cex.axis_s_x)
+title(ylab = "Seasonality", cex.lab = cex.lab_s, line = 2.5)
+dev.off()
+
+png(paste0("figures/Remainder.PNG"),
+    width = figure_width, height = figure_height)
+plot(fit$summary$p_means$Remainder,
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex = cex_s, 
+     cex.axis = cex.axis_s_x, 
+     cex.main = cex.main_s,
+     axes = FALSE,
+     type = "l",
+     lwd = 4)
+axis(2,cex.axis = cex.axis_s_y)
+axis(1,cex.axis = cex.axis_s_x)
+title(ylab = "Remainder", cex.lab = cex.lab_s, line = 2.5)
+dev.off()

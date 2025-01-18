@@ -395,9 +395,10 @@ run_with_retries <- function(func, retries = 10, delay = 1, ...) {
 #'
 #' @import progress spam abind
 #' @export
-fit_BASTION = function(y,Ks,X=NULL,Outlier,cl=0.95,sparse = FALSE,obsSV = "const",
+fit_BASTION = function(y,Ks,X=NULL,Outlier=FALSE,cl=0.95,sparse = FALSE,obsSV = "const",
                        nchains = 2,nsave = 1000, nburn= 1000, nskip = 4,
                        verbose = TRUE){
+  y = as.vector(y)
   if (!is.list(Ks)) {
     stop("Ks needs to be a list")
   }
