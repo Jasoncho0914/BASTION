@@ -1,4 +1,4 @@
-# BASTION: Bayesian Adaptive Seasonality Trend decomposition Incorporating Outlier and Noise)
+# BASTION: Bayesian Adaptive Seasonality and Trend decomposition Incorporating Outlier and Noise)
 
 BASTION provides a Bayesian framework for decomposing univariate time-series. 
 BASTION offers several key advantages over existing decomposition methods including:
@@ -42,10 +42,16 @@ To see detailed documentation for the main function
 ?fit_BASTION
 ```
 
+## Working paper
+For a detailed discussion of the methodology and results, see the accompanying paper:
+
+[BASTION: Bayesian Adaptive Seasonality and Trend decomposition Incorporating Outliers and Noise](inst/paper/draft.pdf).
+
+
 ## Citation
 ```bibtex
 @Manual{BASTION,
-  title        = {BASTION: Bayesian Adaptive Seasonal Time-Series Decomposition},
+  title        = {BASTION: Bayesian Adaptive Seasonality and Trend Decomposition Incorporating Outliers and Noise},
   author       = {Jason B. Cho},
   year         = {2025},
   url          = {https://github.com/Jasoncho0914/BASTION}
