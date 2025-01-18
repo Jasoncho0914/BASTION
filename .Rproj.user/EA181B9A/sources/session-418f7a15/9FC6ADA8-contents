@@ -1,11 +1,12 @@
-# BASTION: Bayesian Adaptive Seasonality and Trend decomposition Incorporating Outlier and Noise)
+# BASTION: Bayesian Adaptive Seasonality and Trend Decomposition Incorporating Outliers and Noise
 
-BASTION provides a Bayesian framework for decomposing univariate time-series. 
-BASTION offers several key advantages over existing decomposition methods including:
+**BASTION** is an R package providing a Bayesian framework for decomposing univariate time series into meaningful components. It offers several key advantages over existing decomposition methods:
 
-1. locally adaptive estimation of trend and seasonality, 
-2. explicit modeling of outliers and time-varying volatility,
-3. rigorous uncertainty quantification through credible intervals for all components.
+- **Locally adaptive** estimation of trend and seasonality.
+- Explicit modeling of **outliers** and **time-varying volatility**.
+- Robust **uncertainty quantification** through credible intervals for all components.
+
+---
 
 ## Installation
 ```r
@@ -13,9 +14,10 @@ BASTION offers several key advantages over existing decomposition methods includ
 install.packages("devtools")
 devtools::install_github("Jasoncho0914/BASTION")
 ```
+---
 
 ## Quick Start
-The main function is `fit_BASTION'. Following is a quick demonstration using the Airline Passenger data between 1949 to 1960.
+The main function is ```fit_BASTION ```. Following is a quick demonstration using the Airline Passenger data between 1949 to 1960.
 ```r
 data(airtraffic)
 fit <- fit_BASTION(y = airtraffic$Int_Pax,
@@ -36,17 +38,22 @@ plot(fit$summary$p_means$Remainder,type = "l",lwd = 4,ylab = "Remainder")
   <img src="inst/figures/remainder.PNG" alt="Remainder" width="30%">
 </p>
 
+---
+
 ## Learn More
 To see detailed documentation for the main function
 ```r
 ?fit_BASTION
 ```
 
+---
+
 ## Working paper
 For a detailed discussion of the methodology and results, see the accompanying paper:
 
 [BASTION: Bayesian Adaptive Seasonality and Trend decomposition Incorporating Outliers and Noise](inst/paper/draft.pdf).
 
+---
 
 ## Citation
 ```bibtex
