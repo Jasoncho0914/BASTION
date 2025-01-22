@@ -328,6 +328,18 @@ summarize_output <- function(mcmc_output,y,Ks,cl,reg,Outlier){
   return(posterior_summary)
 }
 #' @keywords internal
+debug_precision <- function(QHt_Matrix){
+  sus = which(rowSums(QHt_Matrix)<0)
+  for(i in sus){
+    rowsum = sum(QHt_Matrix[i,])
+    while(rowsum <0){
+      QHt_Matrix[i,i]  = QHt_Matrix[i,i] - rowsum*100
+      rowsum = sum(QHt_Matrix[i,])
+    }
+  }
+  return(QHt_Matrix)
+}
+#' @keywords internal
 coverage <- function(upper,lower,a){
   n = length(a)
   return(sum((upper > a) & (lower < a))/n)
@@ -398,6 +410,7 @@ run_with_retries <- function(func, retries = 10, delay = 1, ...) {
 fit_BASTION = function(y,Ks,X=NULL,Outlier=FALSE,cl=0.95,sparse = FALSE,obsSV = "const",
                        nchains = 2,nsave = 1000, nburn= 1000, nskip = 4,
                        verbose = TRUE){
+  #v2
   y = as.vector(y)
   if (!is.list(Ks)) {
     stop("Ks needs to be a list")

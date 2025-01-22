@@ -58,9 +58,29 @@ sampleTrend <- function(data, obs_sigma_t2, evol_sigma_t2, D = 1, Td) {
                              evol_sigma_t2 = pmax(evol_sigma_t2,1e-16),
                              D = D,
                              Td)
-  chQht_Matrix <- Matrix::chol(QHt_Matrix)
-  mu = as.matrix(Matrix::solve(chQht_Matrix, Matrix::solve(Matrix::t(chQht_Matrix),
-                                                           linht) + stats::rnorm(Td)))
+  for (attempt in 1:10) {
+    tryCatch(
+      {
+        chQht_Matrix <- Matrix::chol(QHt_Matrix)
+        mu = as.matrix(Matrix::solve(chQht_Matrix, Matrix::solve(Matrix::t(chQht_Matrix), linht) +
+                                       stats::rnorm(Td)))
+        return(mu)  # If successful, return the result
+      },
+      error = function(e) {
+        if (attempt == 10) {
+          stop("Function failed at sampling Seasonality after ", 10, " attempts: ", e$message)
+        } else {
+          message("Error on attempt ", attempt, ": ", e$message)
+          QHt_Matrix = debug_precision(QHt_Matrix)
+          Sys.sleep(1)  # Wait before retrying
+        }
+      }
+    )
+  }
+
+  # chQht_Matrix <- Matrix::chol(QHt_Matrix)
+  # mu = as.matrix(Matrix::solve(chQht_Matrix, Matrix::solve(Matrix::t(chQht_Matrix),
+  #                                                          linht) + stats::rnorm(Td)))
   return(mu)
 }
 #' @keywords internal

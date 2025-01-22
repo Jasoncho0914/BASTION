@@ -41,18 +41,6 @@ build_Q_season <- function(obs_sigma_t2 = NULL, evol_sigma_t2, Td, k) {
   return(Q)
 }
 #' @keywords internal
-debug_precision <- function(QHt_Matrix){
-  sus = which(rowSums(QHt_Matrix)<0)
-  for(i in sus){
-    rowsum = sum(QHt_Matrix[i,])
-    while(rowsum <0){
-      QHt_Matrix[i,i]  = QHt_Matrix[i,i] - rowsum*100
-      rowsum = sum(QHt_Matrix[i,])
-    }
-  }
-  return(QHt_Matrix)
-}
-#' @keywords internal
 #' @importFrom Matrix t chol  solve
 #' @importFrom stats rnorm
 sampleBeta_season <- function(data, obs_sigma_t2, evol_sigma_t2, Td, k) {
@@ -65,7 +53,7 @@ sampleBeta_season <- function(data, obs_sigma_t2, evol_sigma_t2, Td, k) {
       {
         chQht_Matrix <- Matrix::chol(QHt_Matrix)
         mu = as.matrix(Matrix::solve(chQht_Matrix, Matrix::solve(Matrix::t(chQht_Matrix), linht) +
-                                       rnorm(Td)))
+                                       stats::rnorm(Td)))
         return(mu)  # If successful, return the result
       },
       error = function(e) {
