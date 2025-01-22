@@ -1,0 +1,966 @@
+@misc{ASV,
+      title={Locally Adaptive Random Walk Stochastic Volatility}, 
+      author={Jason B. Cho and David S. Matteson},
+      year={2024},
+      eprint={2408.11315},
+      archivePrefix={arXiv},
+      primaryClass={stat.ME},
+      url={https://arxiv.org/abs/2408.11315}, 
+}
+
+@article{dsp,
+	abstract = {{We propose a novel class of dynamic shrinkage processes for Bayesian time series and regression analysis. Building on a global--local framework of prior construction, in which continuous scale mixtures of Gaussian distributions are employed for both desirable shrinkage properties and computational tractability, we model dependence between the local scale parameters. The resulting processes inherit the desirable shrinkage behaviour of popular global--local priors, such as the horseshoe prior, but provide additional localized adaptivity, which is important for modelling time series data or regression functions with local features. We construct a computationally efficient Gibbs sampling algorithm based on a P{\'o}lya--gamma scale mixture representation of the process proposed. Using dynamic shrinkage processes, we develop a Bayesian trend filtering model that produces more accurate estimates and tighter posterior credible intervals than do competing methods, and we apply the model for irregular curve fitting of minute-by-minute Twitter central processor unit usage data. In addition, we develop an adaptive time varying parameter regression model to assess the efficacy of the Fama--French five-factor asset pricing model with momentum added as a sixth factor. Our dynamic analysis of manufacturing and healthcare industry data shows that, with the exception of the market risk, no other risk factors are significant except for brief periods.}},
+	author = {Kowal, Daniel R. and Matteson, David S. and Ruppert, David},
+	doi = {10.1111/rssb.12325},
+	eprint = {https://academic.oup.com/jrsssb/article-pdf/81/4/781/49270172/jrsssb\_81\_4\_781.pdf},
+	issn = {1369-7412},
+	journal = {Journal of the Royal Statistical Society Series B: Statistical Methodology},
+	month = {05},
+	number = {4},
+	pages = {781-804},
+	title = {{Dynamic Shrinkage Processes}},
+	url = {https://doi.org/10.1111/rssb.12325},
+	volume = {81},
+	year = {2019},
+	bdsk-url-1 = {https://doi.org/10.1111/rssb.12325}}
+
+@article{kimetal,
+	abstract = {In this paper, Markov chain Monte Carlo sampling methods are exploited to provide a unified, practical likelihood-based framework for the analysis of stochastic volatility models. A highly effective method is developed that samples all the unobserved volatilities at once using an approximating offset mixture model, followed by an importance reweighting procedure. This approach is compared with several alternative methods using real data. The paper also develops simulation-based methods for filtering, likelihood evaluation and model failure diagnostics. The issue of model choice using non-nested likelihood ratios and Bayes factors is also investigated. These methods are used to compare the fit of stochastic volatility and GARCH models. All the procedures are illustrated in detail.},
+	author = {Sangjoon Kim and Neil Shephard and Siddhartha Chib},
+	issn = {00346527, 1467937X},
+	journal = {The Review of Economic Studies},
+	number = {3},
+	pages = {361--393},
+	publisher = {[Oxford University Press, Review of Economic Studies, Ltd.]},
+	title = {Stochastic Volatility: Likelihood Inference and Comparison with ARCH Models},
+	url = {http://www.jstor.org/stable/2566931},
+	urldate = {2023-11-12},
+	volume = {65},
+	year = {1998},
+	bdsk-url-1 = {http://www.jstor.org/stable/2566931}}
+@article{zdist,
+	abstract = {A survey is given of general properties of normal variance-mean mixtures, including various new results. In particular, it is shown that the class of self-reciprocal normal variance mixtures is rather wide, and some Tauberian results are established from which relations between the tail behaviour of a normal variance-mean mixture and its mixing distribution may be deduced. The generalized hyperbolic distributions and the modulated normal distributions provide examples of normal variance-mean mixtures whose densities can be given in terms of well-known functions, and it is proved that also the z distributions, i.e. the class of distributions generated from the beta distribution through logistic transformation followed by introduction of location and scale parameters, are normal variance-mean mixtures. (The z distributions include the hyperbolic cosine distribution and the logistic distribution.) Some properties of the associated mixing distributions are derived, and the z distributions are shown to be self-decomposable. /// Nous presentons une vue d'ensemble des propri{\'e}tes des lois probabilit{\'e}s qui sont mixtures 'variance-moyen' des distributions normale. Des resultats nouveaux sont inclus. En particulier, on discute les 'distributions z', c.-a.-d. les distributions produit par une transformation logistique des distributions Beta.},
+	author = {O. Barndorff-Nielsen and J. Kent and M. S{\o}rensen},
+	issn = {03067734, 17515823},
+	journal = {International Statistical Review / Revue Internationale de Statistique},
+	number = {2},
+	pages = {145--159},
+	publisher = {[Wiley, International Statistical Institute (ISI)]},
+	title = {Normal Variance-Mean Mixtures and z Distributions},
+	url = {http://www.jstor.org/stable/1402598},
+	urldate = {2023-10-31},
+	volume = {50},
+	year = {1982},
+	bdsk-url-1 = {http://www.jstor.org/stable/1402598}}
+
+@manual{Rlang,
+	address = {Vienna, Austria},
+	author = {{R Core Team}},
+	organization = {R Foundation for Statistical Computing},
+	title = {R: A Language and Environment for Statistical Computing},
+	url = {http://www.R-project.org/},
+	year = {2013},
+	bdsk-url-1 = {http://www.R-project.org/}}
+
+
+@article{Kastner_2014,
+	author = {Gregor Kastner and Sylvia Fr{\"u}hwirth-Schnatter},
+	doi = {10.1016/j.csda.2013.01.002},
+	journal = {Computational Statistics \& Data Analysis},
+	month = {aug},
+	pages = {408--423},
+	publisher = {Elsevier {BV}},
+	title = {Ancillarity-sufficiency interweaving strategy ({ASIS}) for boosting {MCMC} estimation of stochastic volatility models},
+	url = {https://doi.org/10.1016%2Fj.csda.2013.01.002},
+	volume = {76},
+	year = 2014,
+	bdsk-url-1 = {https://doi.org/10.1016%2Fj.csda.2013.01.002},
+	bdsk-url-2 = {https://doi.org/10.1016/j.csda.2013.01.002}}
+
+@misc{polyagamma,
+	archiveprefix = {arXiv},
+	author = {Nicholas G. Polson and James G. Scott and Jesse Windle},
+	eprint = {1205.0310},
+	primaryclass = {stat.ME},
+	title = {Bayesian inference for logistic models using Polya-Gamma latent variables},
+	year = {2013}}
+
+@article{rue,
+	abstract = {This paper demonstrates how Gaussian Markov random fields (conditional autoregressions) can be sampled quickly by using numerical techniques for sparse matrices. The algorithm is general and efficient, and expands easily to various forms for conditional simulation and evaluation of normalization constants. We demonstrate its use by constructing efficient block updates in Markov chain Monte Carlo algorithms for disease mapping.},
+	author = {Havard Rue},
+	issn = {13697412, 14679868},
+	journal = {Journal of the Royal Statistical Society. Series B (Statistical Methodology)},
+	number = {2},
+	pages = {325--338},
+	publisher = {[Royal Statistical Society, Wiley]},
+	title = {Fast Sampling of Gaussian Markov Random Fields},
+	url = {http://www.jstor.org/stable/2680602},
+	urldate = {2023-11-12},
+	volume = {63},
+	year = {2001},
+	bdsk-url-1 = {http://www.jstor.org/stable/2680602}}
+
+@article{omorietal,
+	abstract = {This paper is concerned with the Bayesian analysis of stochastic volatility (SV) models with leverage. Specifically, the paper shows how the often used Kim et al. [1998. Stochastic volatility: likelihood inference and comparison with ARCH models. Review of Economic Studies 65, 361--393] method that was developed for SV models without leverage can be extended to models with leverage. The approach relies on the novel idea of approximating the joint distribution of the outcome and volatility innovations by a suitably constructed ten-component mixture of bivariate normal distributions. The resulting posterior distribution is summarized by MCMC methods and the small approximation error in working with the mixture approximation is corrected by a reweighting procedure. The overall procedure is fast and highly efficient. We illustrate the ideas on daily returns of the Tokyo Stock Price Index. Finally, extensions of the method are described for superposition models (where the log-volatility is made up of a linear combination of heterogenous and independent autoregressions) and heavy-tailed error distributions (student and log-normal).},
+	author = {Yasuhiro Omori and Siddhartha Chib and Neil Shephard and Jouchi Nakajima},
+	doi = {https://doi.org/10.1016/j.jeconom.2006.07.008},
+	issn = {0304-4076},
+	journal = {Journal of Econometrics},
+	keywords = {Leverage effect, Markov chain Monte Carlo, Mixture sampler, Stochastic volatility, Stock returns},
+	number = {2},
+	pages = {425-449},
+	title = {Stochastic volatility with leverage: Fast and efficient likelihood inference},
+	url = {https://www.sciencedirect.com/science/article/pii/S0304407606001436},
+	volume = {140},
+	year = {2007},
+	bdsk-url-1 = {https://www.sciencedirect.com/science/article/pii/S0304407606001436},
+	bdsk-url-2 = {https://doi.org/10.1016/j.jeconom.2006.07.008}}
+
+@article{slice,
+	author = {Radford M. Neal},
+	doi = {10.1214/aos/1056562461},
+	journal = {The Annals of Statistics},
+	keywords = {Adaptive methods, auxiliary variables, dynamical methods, Gibbs sampling, Markov chain Monte Carlo, Metropolis algorithm, overrelaxation},
+	number = {3},
+	pages = {705 -- 767},
+	publisher = {Institute of Mathematical Statistics},
+	title = {{Slice sampling}},
+	url = {https://doi.org/10.1214/aos/1056562461},
+	volume = {31},
+	year = {2003},
+	bdsk-url-1 = {https://doi.org/10.1214/aos/1056562461}}
+
+@article{abco,
+author = {Haoxuan Wu and Toryn L. J. Schafer and David S. Matteson},
+title = {Trend and Variance Adaptive Bayesian Changepoint Analysis and Local Outlier Scoring},
+journal = {Journal of Business \& Economic Statistics},
+volume = {0},
+number = {0},
+pages = {1--12},
+year = {2024},
+publisher = {Taylor \& Francis},
+doi = {10.1080/07350015.2024.2362269},
+URL = {https://doi.org/10.1080/07350015.2024.2362269},
+eprint = {https://doi.org/10.1080/07350015.2024.2362269}
+}
+
+
+@article{horseshoe,
+	abstract = {This paper proposes a new approach to sparsity, called the horseshoe estimator, which arises from a prior based on multivariate-normal scale mixtures. We describe the estimator's advantages over existing approaches, including its robustness, adaptivity to different sparsity patterns and analytical tractability. We prove two theorems: one that characterizes the horseshoe estimator's tail robustness and the other that demonstrates a super-efficient rate of convergence to the correct estimate of the sampling density in sparse situations. Finally, using both real and simulated data, we show that the horseshoe estimator corresponds quite closely to the answers obtained by Bayesian model averaging under a point-mass mixture prior.},
+	author = {CARLOS M. Carvalho and NICHOLAS G. POLSON and JAMES G. SCOTT},
+	date-modified = {2023-12-09 23:33:58 -0800},
+	issn = {00063444, 14643510},
+	journal = {Biometrika},
+	number = {2},
+	pages = {465--480},
+	publisher = {[Oxford University Press, Biometrika Trust]},
+	title = {The horseshoe estimator for sparse signals},
+	url = {http://www.jstor.org/stable/25734098},
+	urldate = {2023-12-10},
+	volume = {97},
+	year = {2010},
+	bdsk-url-1 = {http://www.jstor.org/stable/25734098}}
+	
+@misc{dspCount,
+      title={Locally Adaptive Shrinkage Priors for Trends and Breaks in Count Time Series}, 
+      author={Toryn L. J. Schafer and David S. Matteson},
+      year={2023},
+      eprint={2309.00080},
+      archivePrefix={arXiv},
+      primaryClass={stat.ME}
+}
+
+
+@article{dspDrift,
+author = {Haoxuan Wu and Toryn L. J. Schafer and Sean Ryan and David S. Matteson},
+title = {Drift vs Shift: Decoupling Trends and Changepoint Analysis},
+journal = {Technometrics},
+volume = {0},
+number = {ja},
+pages = {1--16},
+year = {2024},
+publisher = {Taylor \& Francis},
+doi = {10.1080/00401706.2024.2365730},
+URL = {https://doi.org/10.1080/00401706.2024.2365730},
+eprint = {https://doi.org/10.1080/00401706.2024.2365730}}
+
+@article{Spike1,
+ ISSN = {01621459},
+ URL = {http://www.jstor.org/stable/2290129},
+ author = {T. J. Mitchell and J. J. Beauchamp},
+ journal = {Journal of the American Statistical Association},
+ number = {404},
+ pages = {1023--1032},
+ publisher = {[American Statistical Association, Taylor & Francis, Ltd.]},
+ title = {Bayesian Variable Selection in Linear Regression},
+ urldate = {2024-02-16},
+ volume = {83},
+ year = {1988}
+}
+
+@article{Spike2,
+ ISSN = {01621459},
+ URL = {http://www.jstor.org/stable/2290777},
+ author = {Edward I. George and Robert E. McCulloch},
+ journal = {Journal of the American Statistical Association},
+ number = {423},
+ pages = {881--889},
+ publisher = {[American Statistical Association, Taylor & Francis, Ltd.]},
+ title = {Variable Selection Via Gibbs Sampling},
+ urldate = {2024-02-16},
+ volume = {88},
+ year = {1993}
+}
+
+@article{fastGsample,
+    author = {Rue, Håvard},
+    title = "{Fast Sampling of Gaussian Markov Random Fields}",
+    journal = {Journal of the Royal Statistical Society Series B: Statistical Methodology},
+    volume = {63},
+    number = {2},
+    pages = {325-338},
+    year = {2002},
+    month = {01},
+    abstract = "{This paper demonstrates how Gaussian Markov random fields (conditional autoregressions) can be sampled quickly by using numerical techniques for sparse matrices. The algorithm is general and efficient, and expands easily to various forms for conditional simulation and evaluation of normalization constants. We demonstrate its use by constructing efficient block updates in Markov chain Monte Carlo algorithms for disease mapping.}",
+    issn = {1369-7412},
+    doi = {10.1111/1467-9868.00288},
+    url = {https://doi.org/10.1111/1467-9868.00288},
+    eprint = {https://academic.oup.com/jrsssb/article-pdf/63/2/325/49590408/jrsssb\_63\_2\_325.pdf},
+}
+
+@misc{horseshoe_P,
+      title={The Horseshoe+ Estimator of Ultra-Sparse Signals}, 
+      author={Anindya Bhadra and Jyotishka Datta and Nicholas G. Polson and Brandon Willard},
+      year={2015},
+      eprint={1502.00560},
+      archivePrefix={arXiv},
+      primaryClass={math.ST}
+}
+
+@article{dspinVolatility,
+author = {Huber, Florian and Pfarrhofer, Michael},
+title = {Dynamic shrinkage in time-varying parameter stochastic volatility in mean models},
+journal = {Journal of Applied Econometrics},
+volume = {36},
+number = {2},
+pages = {262-270},
+keywords = {inflation forecasting, inflation uncertainty, real-time data, replication, state-space models},
+doi = {https://doi.org/10.1002/jae.2804},
+url = {https://onlinelibrary.wiley.com/doi/abs/10.1002/jae.2804},
+eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1002/jae.2804},
+abstract = {Summary Successful forecasting models strike a balance between parsimony and flexibility. This is often achieved by employing suitable shrinkage priors that penalize model complexity but also reward model fit. In this article, we modify the stochastic volatility in mean (SVM) model by introducing state-of-the-art shrinkage techniques that allow for time variation in the degree of shrinkage. Using a real-time inflation forecast exercise, we show that employing more flexible prior distributions on several key parameters sometimes improves forecast performance for the United States, the United Kingdom, and the euro area (EA). Comparing in-sample results reveals that our proposed model yields qualitatively similar insights to the original version of the model.},
+year = {2021}
+}
+
+
+@inproceedings{STL,
+  title={STL : A Seasonal-Trend Decomposition Procedure Based on Loess},
+  author={R. B. Cleveland},
+  year={1990},
+  url={https://api.semanticscholar.org/CorpusID:64570714}
+}
+
+@misc{MSTL,
+      title={MSTL: A Seasonal-Trend Decomposition Algorithm for Time Series with Multiple Seasonal Patterns}, 
+      author={Kasun Bandara and Rob J Hyndman and Christoph Bergmeir},
+      year={2021},
+      eprint={2107.13462},
+      archivePrefix={arXiv},
+      primaryClass={stat.AP}
+}
+
+@article{STR,
+author = {Dokumentov, Alexander and Hyndman, Rob J.},
+title = {STR: Seasonal-Trend Decomposition Using Regression},
+journal = {INFORMS Journal on Data Science},
+volume = {1},
+number = {1},
+pages = {50-62},
+year = {2022},
+doi = {10.1287/ijds.2021.0004},
+URL = {https://doi.org/10.1287/ijds.2021.0004},
+eprint = {https://doi.org/10.1287/ijds.2021.0004},
+abstract = { We propose a new method for decomposing seasonal data: a seasonal-trend decomposition using regression (STR). Unlike other decomposition methods, STR allows for multiple seasonal and cyclic components, covariates, seasonal patterns that may have noninteger periods, and seasonality with complex topology. It can be used for time series with any regular time index, including hourly, daily, weekly, monthly, or quarterly data. It is competitive with existing methods when they exist and tackles many more decomposition problems than other methods allow. STR is based on a regularized optimization and so is somewhat related to ridge regression. Because it is based on a statistical model, we can easily compute confidence intervals for components, something that is not possible with most existing decomposition methods (such as seasonal-trend decomposition using Loess, X-12-ARIMA, SEATS-TRAMO, etc.). Our model is implemented in the R package stR, so it can be applied by anyone to their own data. }
+}
+
+
+@article{tbats,
+author = {Alysha M. De Livera, Rob J. Hyndman and Ralph D. Snyder},
+title = {Forecasting Time Series With Complex Seasonal Patterns Using Exponential Smoothing},
+journal = {Journal of the American Statistical Association},
+volume = {106},
+number = {496},
+pages = {1513--1527},
+year = {2011},
+publisher = {ASA Website},
+doi = {10.1198/jasa.2011.tm09771},
+URL = {https://doi.org/10.1198/jasa.2011.tm09771},
+eprint = {https://doi.org/10.1198/jasa.2011.tm09771}}
+
+
+@INCOLLECTION{CensusII,
+title = {Appendix A: Computational Steps and Sample Tables},
+author = {Shiskin, Julius},
+year = {1957},
+pages = {30-39},
+booktitle = {Electronic Computers and Business Indicators},
+publisher = {National Bureau of Economic Research, Inc},
+url = {https://EconPapers.repec.org/RePEc:nbr:nberch:2730}
+}
+
+
+@book{x11,
+  title={The X-11 Variant of the Census Method II Seasonal Adjustment Program},
+  author={Shiskin, J. and Young, A.H. and Musgrave, J.C. and United States. Bureau of the Census},
+  lccn={65007916},
+  series={Technical paper},
+  url={https://books.google.com/books?id=BFIfiGmatUoC},
+  year={1965},
+  publisher={U.S. Government Printing Office}
+}
+
+@book{x11arima,
+  title={The X-II-ARIMA Seasonal Adjustment Method},
+  author={Dagum, E.B. and Statistics Canada. Seasonal Adjustment and Time Series Analysis Staff},
+  lccn={83225028},
+  series={Cat. 12-564 E Occasional},
+  url={https://books.google.com/books?id=PWN6Mcncb3EC},
+  year={1980},
+  publisher={Statistics Canada, Seasonal Adjustment and Time Series Staff}
+}
+
+@article{x12Arima,
+author = {David F. Findley, Brian C. Monsell, William R. Bell, Mark C. Otto and Bor-Chung Chen},
+title = {New Capabilities and Methods of the X-12-ARIMA Seasonal-Adjustment Program},
+journal = {Journal of Business \& Economic Statistics},
+volume = {16},
+number = {2},
+pages = {127--152},
+year = {1998},
+publisher = {ASA Website},
+doi = {10.1080/07350015.1998.10524743},
+URL = { https://doi.org/10.1080/07350015.1998.10524743},
+eprint = {https://doi.org/10.1080/07350015.1998.10524743}}
+
+
+@article{x13s,
+  title={Some recent developments and directions in seasonal adjustment},
+  author={Findley, David F},
+  journal={Journal of official statistics},
+  volume={21},
+  number={2},
+  pages={343},
+  year={2005},
+  publisher={Statistics Sweden (SCB)}
+}
+
+@inproceedings{robostSTL,
+  title={RobustSTL: A robust seasonal-trend decomposition algorithm for long time series},
+  author={Wen, Qingsong and Gao, Jingkun and Song, Xiaomin and Sun, Liang and Xu, Huan and Zhu, Shenghuo},
+  booktitle={Proceedings of the AAAI conference on artificial intelligence},
+  volume={33},
+  number={01},
+  pages={5409--5416},
+  year={2019}
+}
+
+
+@article{prophet,
+author = {Sean J. Taylor and Benjamin Letham},
+title = {Forecasting at Scale},
+journal = {The American Statistician},
+volume = {72},
+number = {1},
+pages = {37--45},
+year = {2018},
+publisher = {ASA Website},
+doi = {10.1080/00031305.2017.1380080},
+URL = {https://doi.org/10.1080/00031305.2017.1380080},
+eprint = {https://doi.org/10.1080/00031305.2017.1380080}}
+
+@misc{Salesforce,
+      title={ETSformer: Exponential Smoothing Transformers for Time-series Forecasting}, 
+      author={Gerald Woo and Chenghao Liu and Doyen Sahoo and Akshat Kumar and Steven Hoi},
+      year={2022},
+      eprint={2202.01381},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2202.01381}, 
+}
+
+@inproceedings{Amazon,
+author = {Jiang, Song and Syed, Tahin and Zhu, Xuan and Levy, Joshua and Aronchik, Boris and Sun, Yizhou},
+title = {Bridging Self-Attention and Time Series Decomposition for Periodic Forecasting},
+year = {2022},
+isbn = {9781450392365},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3511808.3557077},
+doi = {10.1145/3511808.3557077},
+abstract = {In this paper, we study how to capture explicit periodicity to boost the accuracy of deep models in univariate time series forecasting. Recent advanced deep learning models such as recurrent neural networks (RNNs) and transformers have reached new heights in terms of modeling sequential data, such as natural languages, due to their powerful expressiveness. However, real-world time series are often more periodic than general sequential data, while recent studies confirm that standard neural networks are not capable of capturing the periodicity sufficiently because they have no modules that can represent periodicity explicitly. In this paper, we alleviate this challenge by bridging the self-attention network with time series decomposition and propose a novel framework called DeepFS. DeepFS equips <u> Deep </u> models with <u> F </u> ourier <u> S </u>eries to preserve the periodicity of time series. Specifically, our model first uses self-attention to encode temporal patterns, from which to predict the periodic and non-periodic components for reconstructing the forecast outputs. The Fourier series is injected as an inductive bias in the periodic component. Capturing periodicity not only boosts the forecasting accuracy but also offers interpretable insights for real-world time series. Extensive empirical analyses on both synthetic and real-world datasets demonstrate the effectiveness of DeepFS. Studies about why and when DeepFS works provide further understanding of our model.},
+booktitle = {Proceedings of the 31st ACM International Conference on Information \& Knowledge Management},
+pages = {3202–3211},
+numpages = {10},
+keywords = {time series forecasting, time series decomposition, self-attention, Fourier series},
+location = {Atlanta, GA, USA},
+series = {CIKM '22}
+}
+
+
+@Article{App_cli1,
+author={Grieser, J.
+and Tr{\"o}mel, S.
+and Sch{\"o}nwiese, C.-D.},
+title={Statistical time series decomposition into significant components and application to European temperature},
+journal={Theoretical and Applied Climatology},
+year={2002},
+month={Feb},
+day={01},
+volume={71},
+number={3},
+pages={171-183},
+issn={1434-4483},
+doi={10.1007/s007040200003},
+url={https://doi.org/10.1007/s007040200003}
+}
+
+@article{App_cli2,
+  title={Six-decade temporal change and seasonal decomposition of climate variables in Lake Dianchi watershed (China): stable trend or abrupt shift?},
+  author={Zhou, Jing and Liang, Zhongyao and Liu, Yong and Guo, Huaicheng and He, Dan and Zhao, Lei},
+  journal={Theoretical and Applied Climatology},
+  volume={119},
+  pages={181--191},
+  year={2015},
+  publisher={Springer}
+}
+
+@article{App_Epid1,
+author = {Abeku, Tarekegn A. and De Vlas, Sake J. and Borsboom, Gerard and Teklehaimanot, Awash and Kebede, Asnakew and Olana, Dereje and Van Oortmarssen, Gerrit J. and Habbema, J. D. F.},
+title = {Forecasting malaria incidence from historical morbidity patterns in epidemic-prone areas of Ethiopia: a simple seasonal adjustment method performs best},
+journal = {Tropical Medicine \& International Health},
+volume = {7},
+number = {10},
+pages = {851-857},
+keywords = {malaria, Ethiopia, epidemic early warning system, forecasting, time series analysis},
+doi = {https://doi.org/10.1046/j.1365-3156.2002.00924.x},
+url = {https://onlinelibrary.wiley.com/doi/abs/10.1046/j.1365-3156.2002.00924.x},
+eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1046/j.1365-3156.2002.00924.x},
+abstract = {Summary The aim of this study was to assess the accuracy of different methods of forecasting malaria incidence from historical morbidity patterns in areas with unstable transmission. We tested five methods using incidence data reported from health facilities in 20 areas in central and north-western Ethiopia. The accuracy of each method was determined by calculating errors resulting from the difference between observed incidence and corresponding forecasts obtained for prediction intervals of up to 12 months. Simple seasonal adjustment methods outperformed a statistically more advanced autoregressive integrated moving average method. In particular, a seasonal adjustment method that uses mean deviation of the last three observations from expected seasonal values consistently produced the best forecasts. Using 3 years' observation to generate forecasts with this method gave lower errors than shorter or longer periods. Incidence during the rainy months of June–August was the most predictable with this method. Forecasts for the normally dry months, particularly December–February, were less accurate. The study shows the limitations of forecasting incidence from historical morbidity patterns alone, and indicates the need for improved epidemic early warning by incorporating external predictors such as meteorological factors.},
+year = {2002}
+}
+
+@article{App_Epid2,
+  title={Epidemiological analysis of hemorrhagic fever with renal syndrome in China with the seasonal-trend decomposition method and the exponential smoothing model},
+  author={Ke, Guibao and Hu, Yao and Huang, Xin and Peng, Xuan and Lei, Min and Huang, Chaoli and Gu, Li and Xian, Ping and Yang, Dehua},
+  journal={Scientific reports},
+  volume={6},
+  number={1},
+  pages={39350},
+  year={2016},
+  publisher={Nature Publishing Group UK London}
+}
+
+
+@article{why,
+ ISSN = {00206598, 14682354},
+ URL = {http://www.jstor.org/stable/2525336},
+ author = {E. J. Hannan and R. D. Terrell and N. E. Tuckwell},
+ journal = {International Economic Review},
+ number = {1},
+ pages = {24--52},
+ publisher = {[Economics Department of the University of Pennsylvania, Wiley, Institute of Social and Economic Research, Osaka University]},
+ title = {The Seasonal Adjustment of Economic Time Series},
+ urldate = {2024-10-17},
+ volume = {11},
+ year = {1970}
+}
+
+@article{app_biz1,
+title = {Time series decomposition and measurement of business cycles, trends and growth cycles},
+journal = {Journal of Monetary Economics},
+volume = {53},
+number = {7},
+pages = {1717-1739},
+year = {2006},
+issn = {0304-3932},
+doi = {https://doi.org/10.1016/j.jmoneco.2005.03.015},
+url = {https://www.sciencedirect.com/science/article/pii/S0304393206000596},
+author = {Victor Zarnowitz and Ataman Ozyildirim},
+keywords = {Time series decomposition, Indicators, Business cycles, Trends},
+abstract = {A study of business cycles does not require trend estimation and elimination, but a study of growth cycles does. Major cyclical slowdowns and speedups deserve to be analyzed, but the needed time series decomposition presents difficult problems, mainly because trends and cycles influence each other. We compare cyclical movements in levels, deviations from trend, and smoothed growth rates for both the quarterly real GDP and the monthly U.S. Coincident Index—using the phase average trend (PAT). Then we compare alternative trend estimates, deterministic and stochastic, linear and nonlinear, and the corresponding series of deviations from these trends. We discuss how the resulting estimates differ for U.S. growth cycles in the post-World War II period. The results of PAT show great similarity to the results obtained with the Hodrick–Prescott, local linear trend, band-pass filtering methods.}
+}
+
+
+@article{app_biz2,
+  title={Yearly, monthly and weekly seasonality of tourism demand: A decomposition analysis},
+  author={Rossell{\'o}, Jaume and Sans{\'o}, Andreu},
+  journal={Tourism Management},
+  volume={60},
+  pages={379--389},
+  year={2017},
+  publisher={Elsevier}
+}
+
+@article{app_biz3,
+  title={Seasonal adjustment of inventory demand series: a case study},
+  author={Gardner Jr, Everette S and Diaz-Saiz, Joaquin},
+  journal={International Journal of Forecasting},
+  volume={18},
+  number={1},
+  pages={117--123},
+  year={2002},
+  publisher={Elsevier}
+}
+
+@book{App_cpi,
+  title={The Consumer Price Index: Concepts and Content Over the Years},
+  author={United States. Bureau of Labor Statistics},
+  lccn={78602999},
+  series={Report (United States. Bureau of Labor Statistics)},
+  url={https://books.google.com/books?id=sPDxroxMTi0C},
+  year={1977},
+  publisher={The Bureau}
+}
+
+@book{App_unemp,
+  title={On the seasonal adjustment of economic time series aggregates: A case study of the unemployment rate},
+  author={Dagum, Estela Bee},
+  number={31},
+  year={1979},
+  publisher={National Commission on Employment and Unemployment Statistics}
+}
+
+
+@book{ratiotoma,
+  title={The Smoothing of Time Series, By Frederick R. Macaulay},
+  author={Macaulay, F.R.},
+  series={Publication, no. 19},
+  url={https://books.google.com/books?id=_6pnnQEACAAJ},
+  year={1972},
+  publisher={National Bureau of Economic Research}
+}
+
+
+@inproceedings{App_gov,
+  title={Using Daily Payment Processor Data to Determine Existence and Length of Retail Shopping Event Effects},
+  author={Nicole Czaplicki and Rebecca Hutchinson},
+  booktitle={Proceedings of the JSM Denver 2019},
+  year={2019}
+}
+
+
+
+@misc{ASV,
+      title={Locally Adaptive Random Walk Stochastic Volatility}, 
+      author={Jason B. Cho and David S. Matteson},
+      year={2024},
+      eprint={2408.11315},
+      archivePrefix={arXiv},
+      primaryClass={stat.ME},
+      url={https://arxiv.org/abs/2408.11315}, 
+}
+
+@article{tgamma,
+  title={Triple the gamma—A unifying shrinkage prior for variance and variable selection in sparse state space and TVP models},
+  author={Cadonna, Annalisa and Fr{\"u}hwirth-Schnatter, Sylvia and Knaus, Peter},
+  journal={Econometrics},
+  volume={8},
+  number={2},
+  pages={20},
+  year={2020},
+  publisher={MDPI}
+}
+
+
+
+@article{SVop,
+	abstract = {ABSTRACT One option-pricing problem that has hitherto been unsolved is the pricing of a European call on an asset that has a stochastic volatility. This paper examines this problem. The option price is determined in series form for the case in which the stochastic volatility is independent of the stock price. Numerical solutions are also produced for the case in which the volatility is correlated with the stock price. It is found that the Black-Scholes price frequently overprices options and that the degree of overpricing increases with the time to maturity.},
+	author = {Hull, JOHN and White, ALAN},
+	doi = {https://doi.org/10.1111/j.1540-6261.1987.tb02568.x},
+	eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1540-6261.1987.tb02568.x},
+	journal = {The Journal of Finance},
+	number = {2},
+	pages = {281-300},
+	title = {The Pricing of Options on Assets with Stochastic Volatilities},
+	url = {https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.1987.tb02568.x},
+	volume = {42},
+	year = {1987},
+	bdsk-url-1 = {https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.1987.tb02568.x},
+	bdsk-url-2 = {https://doi.org/10.1111/j.1540-6261.1987.tb02568.x}}
+
+
+@article{horseshoe_cp,
+	title = {Horseshoe shrinkage methods for Bayesian fusion estimation},
+	journal = {Computational Statistics \& Data Analysis},
+	volume = {174},
+	pages = {107450},
+	year = {2022},
+	issn = {0167-9473},
+	doi = {https://doi.org/10.1016/j.csda.2022.107450},
+	url = {https://www.sciencedirect.com/science/article/pii/S0167947322000305},
+	author = {Sayantan Banerjee}
+}
+
+@article{HP,
+ ISSN = {00222879, 15384616},
+ URL = {http://www.jstor.org/stable/2953682},
+ abstract = {We propose a procedure for representing a time series as the sum of a smoothly varying trend component and a cyclical component. We document the nature of the comovements of the cyclical components of a variety of macroeconomic time series. We find that these comovements are very different than the corresponding comovements of the slowly varying trend components.},
+ author = {Robert J. Hodrick and Edward C. Prescott},
+ journal = {Journal of Money, Credit and Banking},
+ number = {1},
+ pages = {1--16},
+ publisher = {[Wiley, Ohio State University Press]},
+ title = {Postwar U.S. Business Cycles: An Empirical Investigation},
+ urldate = {2024-11-04},
+ volume = {29},
+ year = {1997}
+}
+
+
+@article{l1tf1,
+    author = {Kim, Seung-Jean and Koh, Kwangmoo and Boyd, Stephen and
+              Gorinevsky, Dimitry},
+     title = {{$l_1$} trend filtering},
+   Journal = {SIAM Rev.},
+  fjournal = {SIAM Review},
+    volume = {51},
+      year = {2009},
+    number = {2},
+     pages = {339--360},
+      ISSN = {0036-1445,1095-7200},
+   MRCLASS = {62M20 (37M10)},
+  MRNUMBER = {2505584},
+       DOI = {10.1137/070690274},
+       URL = {https://doi.org/10.1137/070690274},
+}
+@article{l1tf2,
+   title={Adaptive piecewise polynomial estimation via trend filtering},
+   volume={42},
+   ISSN={0090-5364},
+   url={http://dx.doi.org/10.1214/13-AOS1189},
+   DOI={10.1214/13-aos1189},
+   number={1},
+   journal={The Annals of Statistics},
+   publisher={Institute of Mathematical Statistics},
+   author={Tibshirani, Ryan J.},
+   year={2014},
+   month=feb }
+
+
+@article{regularized_hs,
+author = {Juho Piironen and Aki Vehtari},
+title = {{Sparsity information and regularization in the horseshoe and other shrinkage priors}},
+volume = {11},
+journal = {Electronic Journal of Statistics},
+number = {2},
+publisher = {Institute of Mathematical Statistics and Bernoulli Society},
+pages = {5018 -- 5051},
+keywords = {Bayesian inference, horseshoe prior, shrinkage priors, Sparse estimation},
+year = {2017},
+doi = {10.1214/17-EJS1337SI},
+URL = {https://doi.org/10.1214/17-EJS1337SI}
+}
+
+
+@article{Sspline,
+ ISSN = {00278424, 10916490},
+ URL = {http://www.jstor.org/stable/72390},
+ author = {I. J. Schoenberg},
+ journal = {Proceedings of the National Academy of Sciences of the United States of America},
+ number = {4},
+ pages = {947--950},
+ publisher = {National Academy of Sciences},
+ title = {Spline Functions and the Problem of Graduation},
+ urldate = {2024-11-06},
+ volume = {52},
+ year = {1964}
+}
+
+@inproceedings{globalp,
+author = {Piironen, Juho and Vehtari, Aki},
+year = {2017},
+month = {05},
+pages = {},
+title = {On the Hyperprior Choice for the Global Shrinkage Parameter in the Horseshoe Prior},
+doi = {10.48550/arXiv.1610.05559}
+}
+
+@article{jeffrey,
+author = {Jeffreys, Harold },
+title = {An invariant form for the prior probability in estimation problems},
+journal = {Proceedings of the Royal Society of London. Series A. Mathematical and Physical Sciences},
+volume = {186},
+number = {1007},
+pages = {453-461},
+year = {1946},
+doi = {10.1098/rspa.1946.0056},
+
+URL = {https://royalsocietypublishing.org/doi/abs/10.1098/rspa.1946.0056},
+eprint = {https://royalsocietypublishing.org/doi/pdf/10.1098/rspa.1946.0056}
+,
+    abstract = { It is shown that a certain differential form depending on the values of the parameters in a law of chance is invariant for all transformations of the parameters when the law is differentiable with regard to all parameters. For laws containing a location and a scale parameter a form with a somewhat restricted type of invariance is found even when the law is not everywhere differentiable with regard to the parameters. This form has the properties required to give a general rule for stating the prior probability in a large class of estimation problems. }
+}
+
+article{SVop,
+	abstract = {ABSTRACT One option-pricing problem that has hitherto been unsolved is the pricing of a European call on an asset that has a stochastic volatility. This paper examines this problem. The option price is determined in series form for the case in which the stochastic volatility is independent of the stock price. Numerical solutions are also produced for the case in which the volatility is correlated with the stock price. It is found that the Black-Scholes price frequently overprices options and that the degree of overpricing increases with the time to maturity.},
+	author = {Hull, JOHN and White, ALAN},
+	doi = {https://doi.org/10.1111/j.1540-6261.1987.tb02568.x},
+	eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1540-6261.1987.tb02568.x},
+	journal = {The Journal of Finance},
+	number = {2},
+	pages = {281-300},
+	title = {The Pricing of Options on Assets with Stochastic Volatilities},
+	url = {https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.1987.tb02568.x},
+	volume = {42},
+	year = {1987},
+	bdsk-url-1 = {https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.1987.tb02568.x},
+	bdsk-url-2 = {https://doi.org/10.1111/j.1540-6261.1987.tb02568.x}}
+
+@article{ARCH,
+	abstract = {Traditional econometric models assume a constant one-period forecast variance. To generalize this implausible assumption, a new class of stochastic processes called autoregressive conditional heteroscedastic (ARCH) processes are introduced in this paper. These are mean zero, serially uncorrelated processes with nonconstant variances conditional on the past, but constant unconditional variances. For such processes, the recent past gives information about the one-period forecast variance. A regression model is then introduced with disturbances following an ARCH process. Maximum likelihood estimators are described and a simple scoring iteration formulated. Ordinary least squares maintains its optimality properties in this set-up, but maximum likelihood is more efficient. The relative efficiency is calculated and can be infinite. To test whether the disturbances follow an ARCH process, the Lagrange multiplier procedure is employed. The test is based simply on the autocorrelation of the squared OLS residuals. This model is used to estimate the means and variances of inflation in the U.K. The ARCH effect is found to be significant and the estimated variances increase substantially during the chaotic seventies.},
+	author = {Robert F. Engle},
+	issn = {00129682, 14680262},
+	journal = {Econometrica},
+	number = {4},
+	pages = {987--1007},
+	publisher = {[Wiley, Econometric Society]},
+	title = {Autoregressive Conditional Heteroscedasticity with Estimates of the Variance of United Kingdom Inflation},
+	url = {http://www.jstor.org/stable/1912773},
+	urldate = {2023-10-30},
+	volume = {50},
+	year = {1982},
+	bdsk-url-1 = {http://www.jstor.org/stable/1912773}}
+@article{GARCH2,
+	abstract = {A natural generalization of the ARCH (Autoregressive Conditional Heteroskedastic) process introduced in Engle (1982) to allow for past conditional variances in the current conditional variance equation is proposed. Stationarity conditions and autocorrelation structure for this new class of parametric models are derived. Maximum likelihood estimation and testing are also considered. Finally an empirical example relating to the uncertainty of the inflation rate is presented.},
+	author = {Tim Bollerslev},
+	doi = {https://doi.org/10.1016/0304-4076(86)90063-1},
+	issn = {0304-4076},
+	journal = {Journal of Econometrics},
+	number = {3},
+	pages = {307-327},
+	title = {Generalized autoregressive conditional heteroskedasticity},
+	url = {https://www.sciencedirect.com/science/article/pii/0304407686900631},
+	volume = {31},
+	year = {1986},
+	bdsk-url-1 = {https://www.sciencedirect.com/science/article/pii/0304407686900631},
+	bdsk-url-2 = {https://doi.org/10.1016/0304-4076(86)90063-1}}
+
+
+@book{SVop2,
+	author = {Taylor, S.J.},
+	isbn = {9789812770844},
+	lccn = {2007043574},
+	publisher = {World Scientific},
+	series = {G - Reference,Information and Interdisciplinary Subjects Series},
+	title = {Modelling Financial Time Series},
+	url = {https://books.google.com/books?id=KQ5pDQAAQBAJ},
+	year = {2008},
+	bdsk-url-1 = {https://books.google.com/books?id=KQ5pDQAAQBAJ}}
+
+@article{SVop3,
+	author = {Melino, Angelo and Turnbull, Stuart M.},
+	journal = {Journal of Econometrics},
+	number = {1-2},
+	pages = {239-265},
+	title = {Pricing foreign currency options with stochastic volatility},
+	url = {https://EconPapers.repec.org/RePEc:eee:econom:v:45:y:1990:i:1-2:p:239-265},
+	volume = {45},
+	year = {1990},
+	bdsk-url-1 = {https://EconPapers.repec.org/RePEc:eee:econom:v:45:y:1990:i:1-2:p:239-265}}
+
+@article{CV2,
+	abstract = {If options are correctly priced in the market, it should not be possible to make sure profits by creating portfolios of long and short positions in options and their underlying stocks. Using this principle, a theoretical valuation formula for options is derived. Since almost all corporate liabilities can be viewed as combinations of options, the formula and the analysis that led to it are also applicable to corporate liabilities such as common stock, corporate bonds, and warrants. In particular, the formula can be used to derive the discount that should be applied to a corporate bond because of the possibility of default.},
+	author = {Fischer Black and Myron Scholes},
+	issn = {00223808, 1537534X},
+	journal = {Journal of Political Economy},
+	number = {3},
+	pages = {637--654},
+	publisher = {University of Chicago Press},
+	title = {The Pricing of Options and Corporate Liabilities},
+	url = {http://www.jstor.org/stable/1831029},
+	urldate = {2023-11-01},
+	volume = {81},
+	year = {1973},
+	bdsk-url-1 = {http://www.jstor.org/stable/1831029}}
+
+@article{Epidem, 
+title={Use of Stochastic Volatility Models in Epidemiological Data: Application to a Dengue Time Series in S√£o Paulo City, Brazil}, 
+volume={6}, 
+url={https://jbe.tums.ac.ir/index.php/jbe/article/view/338}, DOI={10.18502/jbe.v6i1.4755}, 
+number={1}, journal={Journal of Biostatistics and Epidemiology}, author={Achcar, Jorge Alberto and Puziol de Oliveira, Ricardo and Barili, Emerson}, year={2020}, month={Oct.}, pages={19-29}	
+}
+
+@article{Epidem2,
+  title={Application of different time series models on epidemiological data-comparison and predictions for malaria prevalence},
+  author={Sarkar, RR and Chatterjee, C},
+  journal={SM J. Biom. Biostat},
+  volume={2},
+  number={4},
+  pages={1022},
+  year={2017}
+}
+
+@article{geophysics2,
+  title={Volatility models applied to geophysics and high frequency financial market data},
+  author={Mariani, Maria C and Bhuiyan, Md Al Masum and Tweneboah, Osei K and Gonzalez-Huizar, Hector and Florescu, Ionut},
+  journal={Physica A: Statistical Mechanics and its Applications},
+  volume={503},
+  pages={304--321},
+  year={2018},
+  publisher={Elsevier}
+}
+@article{geophysics1,
+  title={Testing and modelling autoregressive conditional heteroskedasticity of streamflow processes},
+  author={Wang, W and Van Gelder, PHAJ M and Vrijling, JK and Ma, J},
+  journal={Nonlinear processes in Geophysics},
+  volume={12},
+  number={1},
+  pages={55--66},
+  year={2005},
+  publisher={Copernicus Publications G{\"o}ttingen, Germany}
+}
+
+@article{climate1,
+  title={Changing volatility of US annual tornado reports},
+  author={Tippett, Michael K},
+  journal={Geophysical Research Letters},
+  volume={41},
+  number={19},
+  pages={6956--6961},
+  year={2014},
+  publisher={Wiley Online Library}
+}
+
+@article{climate2,
+  title={Modeling the relationship between climate oscillations and drought by a multivariate GARCH model},
+  author={Modarres, Reza and Ouarda, Taha BMJ},
+  journal={Water Resources Research},
+  volume={50},
+  number={1},
+  pages={601--618},
+  year={2014},
+  publisher={Wiley Online Library}
+}
+
+@inproceedings{climate3,
+  title={Daily load forecasting and maximum demand estimation using ARIMA and GARCH},
+  author={Hor, Ching-Lai and Watson, Simon J and Majithia, Shanti},
+  booktitle={2006 International conference on probabilistic methods applied to power systems},
+  pages={1--6},
+  year={2006},
+  organization={IEEE}
+}
+
+
+@article{regression1,
+Author = {Stock, James H. and W.Watson, Mark},
+Title = {Forecasting Output and Inflation: The Role of Asset Prices},
+Journal = {Journal of Economic Literature},
+Volume = {41},
+Number = {3},
+Year = {2003},
+Month = {September},
+Pages = {788–829},
+DOI = {10.1257/002205103322436197},
+URL = {https://www.aeaweb.org/articles?id=10.1257/002205103322436197}}
+
+@article{regression2,
+ ISSN = {00223808, 1537534X},
+ URL = {http://www.jstor.org/stable/1832055},
+ abstract = {All but one of the U.S. recessions since World War II have been preceded, typically with a lag of around three-fourths of a year, by a dramatic increase in the price of crude petroleum. This does not mean that oil shocks caused these recessions. Evidence is presented, however, that even over the period 1948-72 this correlation is statistically significant and nonspurious, supporting the proposition that oil shocks were a contributing factor in at least some of the U.S. recessions prior to 1972. By extension, energy price increases may account for much of post-OPEC macroeconomic performance.},
+ author = {James D. Hamilton},
+ journal = {Journal of Political Economy},
+ number = {2},
+ pages = {228--248},
+ publisher = {University of Chicago Press},
+ title = {Oil and the Macroeconomy since World War II},
+ urldate = {2024-11-06},
+ volume = {91},
+ year = {1983}
+}
+
+@ARTICLE{easyHSsampler,
+  author={Makalic, Enes and Schmidt, Daniel F.},
+  journal={IEEE Signal Processing Letters}, 
+  title={A Simple Sampler for the Horseshoe Estimator}, 
+  year={2016},
+  volume={23},
+  number={1},
+  pages={179-182},
+  keywords={Bayes methods;Logistics;Mathematical model;Linear regression;Computational modeling;Signal processing algorithms;Data models;Bayesian regression;horseshoe estimator;Markov chain Monte Carlo sampling},
+  doi={10.1109/LSP.2015.2503725}}
+
+@Article{stochvol,
+  author={Kastner, Gregor},
+  title={{Dealing with Stochastic Volatility in Time Series Using the R Package stochvol}},
+  journal={Journal of Statistical Software},
+  year=2016,
+  volume={69},
+  number={i05},
+  pages={},
+  month={},
+  keywords={},
+  doi={http://hdl.handle.net/10.},
+  abstract={ The R package stochvol provides a fully Bayesian implementation of heteroskedasticity modeling within the framework of stochastic volatility. It utilizes Markov chain Monte Carlo (MCMC) samplers to conduct inference by obtaining draws from the posterior distribution of parameters and latent variables which can then be used for predicting future volatilities. The package can straightforwardly be employed as a stand-alone tool; moreover, it allows for easy incorporation into other MCMC samplers. The main focus of this paper is to show the functionality of stochvol. In addition, it provides a brief mathematical description of the model, an overview of the sampling schemes used, and several illustrative examples using exchange rate data.},
+  url={https://ideas.repec.org/a/jss/jstsof/v069i05.html}
+}
+
+
+@Manual{str_pack,
+  title = {{stR}: STR Decomposition of Time Series},
+  author = {Alexander Dokumentov and Rob Hyndman},
+  year = {2024},
+  note = {R package version 0.7},
+  url = {https://pkg.robjhyndman.com/stR/},
+}
+
+@Manual{forecast_pack,
+  title = {{forecast}: Forecasting functions for time series and linear models},
+  author = {Rob Hyndman and George Athanasopoulos and Christoph Bergmeir and Gabriel Caceres and Leanne Chhay and Mitchell O'Hara-Wild and Fotios Petropoulos and Slava Razbash and Earo Wang and Farah Yasmeen},
+  year = {2024},
+  note = {R package version 8.23.0},
+  url = {https://pkg.robjhyndman.com/forecast/},
+}
+
+@Manual{base,
+  title = {R: A Language and Environment for Statistical Computing},
+  author = {{R Core Team}},
+  organization = {R Foundation for Statistical Computing},
+  address = {Vienna, Austria},
+  year = {2024},
+  url = {https://www.R-project.org/},
+}
+
+@Manual{openmeteo,
+    title = {openmeteo: Retrieve Weather Data from the Open-Meteo API},
+    author = {Tom Pisel},
+    year = {2023},
+    note = {R package version 0.2.4},
+    url = {https://CRAN.R-project.org/package=openmeteo},
+  }
+## data
+
+@misc{us_airline_traffic,
+  author = {Yuxian Yan},
+  title = {U.S. Airline Traffic Data (2003-2023)},
+  year = {2023},
+  url = {https://www.kaggle.com/datasets/yyxian/u-s-airline-traffic-data},
+  note = {Accessed: 2024-06-16}
+}
+
+@misc{capital_bikeshare_data,
+  author = {Capital Bikeshare},
+  title = {Capital Bikeshare System Data},
+  year = {2024},
+  url = {https://capitalbikeshare.com/system-data},
+  note = {Accessed: 2024-06-16}
+}
+
+@misc{nyis_electricity,
+  author = {U.S. Energy Information Administration (EIA)},
+  title = {New York Independent System Operator Electricity Demand Data},
+  year = {2024},
+  url = {https://www.eia.gov/electricity/gridmonitor/dashboard/electric_overview/regional/REG-NY},
+  note = {Accessed: 2024-06-16}
+}
+

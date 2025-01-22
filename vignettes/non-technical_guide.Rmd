@@ -1,0 +1,327 @@
+---
+title: "Time-series decomposition with BASTION"
+output: rmarkdown::html_vignette
+bibliography: ref.bib
+csl: apa.csl
+vignette: >
+  %\VignetteIndexEntry{Time-series decomposition with BASTION}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction to BASTION
+
+Bayesian Adaptive Seasonality Trend decomposition Incorporating Outliers and Noise (**BASTION**) is a Bayesian framework for decomposing time series into trend and multiple seasonality. Existing decomposition methods, though widely used, exhibit several limitations: 
+
+1. Difficulty in adapting to abrupt changes in the trend, 
+2. Lack of robustness to outliers and heteroskedasticity
+3. Absence of uncertainty quantification,
+4. Inability to accommodate multiple seasonal patterns,
+
+While addressing some of these challenges, no existing model fully resolves all of them. 
+
+## Why use BASTION?
+BASTION addresses all five 
+
+In this section, we highlight strength of characteristic via simulated data. Let's consider the following data.
+
+```{r datasim, echo = FALSE}
+generate_T <- function(n) {
+  
+  # Generate random parameters
+  m <- runif(4, -50, 50)  # Slopes
+  c <- runif(4, -25, 25)  # Intercepts
+  b <- runif(3, 30, n%/%4)  # Breakpoints b1, b2, b3
+  
+  # Define breakpoints
+  breakpoints <- cumsum(c(0, b, n - sum(b)))
+  
+  # Define the piecewise function
+  T <- function(t) {
+    if (t >= 0 && t < breakpoints[2]) {
+      return(m[1] * 0.01 * (t - breakpoints[1]) + c[1])
+    } else if (t >= breakpoints[2] && t < breakpoints[3]) {
+      return(m[2] * 0.01 * (t - breakpoints[2]) + c[2])
+    } else if (t >= breakpoints[3] && t < breakpoints[4]) {
+      return(m[3] * 0.01 * (t - breakpoints[3]) + c[3])
+    } else if (t >= breakpoints[4] && t <= n) {
+      return(m[4] * 0.01 * (t - breakpoints[4]) + c[4])
+    } else {
+      return(NA)  # Out of range
+    }
+  }
+  
+  # Generate a sequence of t values
+  t_values <- 1:n
+  T_values <- sapply(t_values, T)
+  
+  # Return the results
+  return(list(
+    T_function = T,
+    t_values = t_values,
+    T_values = T_values,
+    parameters = list(m = m, c = c, b = b, breakpoints = breakpoints)
+  ))
+}
+gen_sim <- function(n,seed){
+  #setting seed
+  set.seed(seed)
+  
+  # trend componenet
+  trend = generate_T(n)$T_values
+  
+  # remainder
+  error_sd <- stochvol::svsim(n, mu = 4, phi = 0.98, sigma = 0.3, nu = Inf, rho = 0)
+  errors = rnorm(n,0,error_sd$vol)
+  vol = error_sd$vol
+  # errors = rnorm(n,0,5)
+  # vol = 5
+  period1 <- 7
+  period2 <- 30
+
+  # Generate seasonality components
+  # First seasonality term
+  season1 <- rnorm(1,0,10)*sin(2 * pi * (1:n) / period1) + rnorm(1,0,10)*cos(2*pi*(1:n)/period1)
+  season1 <- season1 - mean(season1)  # Adjust to make the first term 0
+  
+  #second seasonality term
+  season2 <- rnorm(1,0,15)*sin(2 * pi * (1:n) / period2) + rnorm(1,0,15)*cos(2 * pi * (1:n) / period2) 
+  season2 <- season2 - mean(season2) # Adjust to make the first term 0
+  season = season1 + season2
+  #Outlier term  
+  n_outliers = rpois(1,5)
+  outlier_ind = sample(c(5:n),size = n_outliers,replace = FALSE)
+  outliers = numeric(n)
+  outliers[outlier_ind] = rcauchy(n_outliers,loc = 35,scale = 4)*
+    sample(c(-1,1),size = n_outliers,replace = TRUE)
+  
+  y = trend +season1 + season2 + outliers + errors
+  return(as.data.frame(cbind(y,trend,season,season1,season2,outliers,errors,vol)))
+}
+```
+
+```{r figures_arg, echo = FALSE}
+# arguments for figures:
+cex_s = 0.8
+cex.axis_s = 1
+cex.axis_s_y = 0.9
+cex.axis_s_x = 0.9
+cex.main_s = 1.75
+cex.lab_s = 1.25
+lwd_s = 2.5
+line = 2.5
+cex_l = 0.8
+margin_size1 = c(4,4,1,1)
+```
+
+
+```{r figures_data, echo = FALSE,fig.width = 8,fig.height = 2.75}
+y=gen_sim(500,2)
+
+# layout(matrix(c(1, 1, 2, 2,
+#                 0, 3, 3, 0), nrow = 2, byrow = TRUE))
+par(mar = margin_size1)
+plot(y[,"y"], 
+     type = "p",
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex = cex_s, 
+     cex.axis = cex.axis_s, 
+     cex.main = cex.main_s,
+     axes = FALSE)
+axis(2,cex.axis = cex.axis_s_y)
+axis(1,cex.axis = cex.axis_s_x)
+abline(v = which(y[,c("outliers")] != 0),col = "red",lty = 2,lwd = lwd_s*3/5)
+lines(y[,"trend"]+y[,"season"], type = "l", lwd = lwd_s, col = "blue")
+lines(y[,"trend"], type = "l", lwd = lwd_s, col = "black")
+legend("topright", lwd = 2,lty = c(1,1,2),col = c("black","blue","red"), 
+       legend = c("Trend","Trend+Seasonality","Outliers"),
+       cex = cex_l)
+title(ylab = "Observations", cex.lab = cex.lab_s, line = line)
+title(xlab = "Time", cex.lab = cex.lab_s, line = line)
+
+# plot(y[,"season1"][1:100],type = "l",col = "black",ylim = c(-20,20),lwd = lwd_s,
+#      xlab = "",
+#      ylab = "",
+#      main = "",
+#      cex = cex_s,
+#      cex.axis = cex.axis_s,
+#      cex.main = cex.main_s,
+#      axes = FALSE)
+# axis(2,cex.axis = cex.axis_s_y)
+# axis(1,cex.axis = cex.axis_s_x)
+# lines(y[,"season2"][1:100], type = "l", lwd = lwd_s,col = "blue")
+# legend("topright", lwd = 2,lty = 1,col = c("black","blue"),
+#        legend = c("Weekly","Monthly"),
+#        cex = cex_l)
+# title(ylab = "Seasonality", cex.lab = cex.lab_s, line = line)
+# title(xlab = "Time", cex.lab = cex.lab_s, line = line)
+# 
+# plot(y[,"errors"],type = "l",col = "black",lwd = lwd_s,
+#      xlab = "",
+#      ylab = "",
+#      main = "",
+#      cex = cex_s,
+#      cex.axis = cex.axis_s,
+#      cex.main = cex.main_s,
+#      axes = FALSE)
+# axis(2,cex.axis = cex.axis_s_y)
+# axis(1,cex.axis = cex.axis_s_x)
+# title(ylab = "Remainder", cex.lab = cex.lab_s, line = line)
+# title(xlab = "Time", cex.lab = cex.lab_s, line = line)
+#
+
+```
+
+Three defining characteristics of the simulated data above are:
+
+1. **Abrupt Changes**: Abrupt changes in trend occur around t = 80, 180 and 250.
+3. **Outliers**: In addition to the trend and seasonality components, outliers are present (drawn in red).
+2. **Heteroskedasticity**: The variance term changes over time with large volatility clustering at t = 300.
+
+Let's install and fit BASTION. For comparisons, three other methods MSTL, STR, and TBATS are compared.
+```{r setup}
+#devtools::install_github("Jasoncho0914/BASTION")
+# library(BASTION)
+# library(forecast)
+# library(stR)
+# set.seed(31)
+# BASTION = fit_BASTION(y = y[,"y"],
+#                       Ks = list(7,30),
+#                       Outlier = TRUE,
+#                       cl= 0.95,
+#                       obsSV = "SV",
+#                       nsave = 2000,
+#                       nburn = 4000)
+# y_ts <- forecast::msts(y[,"y"], seasonal.periods=c(7,30))
+# TBATS = forecast::tbats(y_ts)
+# TBATScomp = forecast::tbats.components(TBATS)
+# STR = stR::AutoSTR(y_ts,robust = TRUE,confidence = 0.95)
+# MSTL = forecast::mstl(y_ts)
+```
+
+```{r}
+# sum(BASTION$summary$Trend$CR_upper > y[,"trend"] & BASTION$summary$Trend$CR_lower < y[,"trend"])/500
+# sum(STR$output$predictors[[1]]$upper > y[,"trend"] &  STR$output$predictors[[1]]$lower< y[,"trend"])/500
+```
+
+
+### Adaptive yet smooth estimate of the 
+
+```{r figures_trend, echo = FALSE,fig.width = 8,fig.height = 6}
+# layout(matrix(c(4, 3, 2, 1), nrow = 2, byrow = TRUE))
+# par(mar = margin_size1)
+# plot(y[,"trend"],
+#      type = "p",
+#      xlab = "",
+#      ylab = "",
+#      main = "",
+#      cex=cex_s*0.5,
+#      cex.axis = cex.axis_s,
+#      cex.main = cex.main_s,
+#      axes = FALSE
+# )
+# axis(1,cex.axis = cex.axis_s_x)
+# axis(2,cex.axis = cex.axis_s_y)
+# # Add the trend line
+# lines(BASTION$summary$Trend_sum$CR_upper,type = "l",lwd = lwd_s,col ="blue",lty = 2)
+# lines(BASTION$summary$Trend_sum$CR_lower,type = "l",lwd = lwd_s,col ="blue",lty = 2)
+# lines(BASTION$summary$Trend_sum$Mean, type = "l", lwd = lwd_s,col = "blue")
+# title(ylab = "Observations",cex.lab = cex.lab_s,line = 2.5)
+# title(xlab = "Time",cex.lab = cex.lab_s,line = 2.5)
+# title(main = "BASTION",cex.lab = cex.lab_s)
+# #########################
+# plot(y[,"trend"],
+#      type = "p",
+#      xlab = "",
+#      ylab = "",
+#      main = "",
+#      cex=cex_s*0.5,
+#      cex.axis = cex.axis_s,
+#      cex.main = cex.main_s,
+#      axes = FALSE
+# )
+# axis(1,cex.axis = cex.axis_s_x)
+# axis(2,cex.axis = cex.axis_s_y)
+# lines(as.numeric(TBATScomp[,"level"]), type = "l", lwd = lwd_s,col = "blue")
+# title(main = "TBATS",cex.lab = cex.lab_s)
+# title(ylab = "Observations",cex.lab = cex.lab_s,line = 2.5)
+# title(xlab = "Time",cex.lab = cex.lab_s,line = 2.5)
+# ###########################
+# plot(y[,"trend"],
+#      type = "p",
+#      xlab = "",
+#      ylab = "",
+#      main = "",
+#      cex=cex_s*0.5,
+#      cex.axis = cex.axis_s,
+#      cex.main = cex.main_s,
+#      axes = FALSE
+# )
+# axis(1,cex.axis = cex.axis_s_x)
+# axis(2,cex.axis = cex.axis_s_y)
+# lines(as.numeric(STR$output$predictors[[1]]$data), type = "l", lwd = lwd_s,col = "blue")
+# lines(as.numeric(STR$output$predictors[[1]]$upper),type = "l",lwd = lwd_s,col ="blue",lty = 2)
+# lines(as.numeric(STR$output$predictors[[1]]$lower),type = "l",lwd = lwd_s,col ="blue",lty = 2)
+# title(main = "STR",cex.lab = cex.lab_s)
+# title(ylab = "Observations",cex.lab = cex.lab_s,line = 2.5)
+# title(xlab = "Time",cex.lab = cex.lab_s,line = 2.5)
+# #################
+# plot(y[,"trend"],
+#      type = "p",
+#      xlab = "",
+#      ylab = "",
+#      main = "",
+#      cex=cex_s*0.5,
+#      cex.axis = cex.axis_s,
+#      cex.main = cex.main_s,
+#      axes = FALSE
+# )
+# axis(1,cex.axis = cex.axis_s_x)
+# axis(2,cex.axis = cex.axis_s_y)
+# lines(as.numeric(MSTL[,"Trend"]), type = "l", lwd = lwd_s,col = "blue")
+# title(main = "MSTL",cex.lab = cex.lab_s)
+# title(ylab = "Observations",cex.lab = cex.lab_s,line = 2.5)
+# title(xlab = "Time",cex.lab = cex.lab_s,line = 2.5)
+
+
+```
+
+
+### Robust Uncertainty Quantification
+Only other decomposition method that provides uncertainty quantification is Seasonal-Trend decomposition with Regression (STR) by 
+
+
+
+### Noise and Outlier Modeling
+
+
+## Data Analysis: Daily Electricity use in New York State from 2015-07-01 to 2024-06-30
+
+
+## How does it work?
+BASTION decomposes a univariate time series \( \{y_t\}_{t=1}^N \) into the following components:
+
+1. **Trend** (\( \{T_t\}_{t=1}^N \)): Captures long-term patterns.
+2. **Seasonality** (\( \{S_{i,t}\}_{t=1}^N \)): Models periodic fluctuations, where \( i \) indexes different seasonalities.
+3. **Outliers** (\( \{\zeta_t\}_{t=1}^N \)): Isolates additive irregularities.
+4. **Remainder** (\( \{R_t\}_{t=1}^N \)): Represents noise.
+
+The observation equation is:
+\[
+y_t = T_t + \sum_{i=1}^P S_{i,t} + \zeta_t + R_t,
+\]
+where \( P \) is the number of seasonal components. In addition to the trend and seasonality, BASTION also explicitly models the outlier term, $\zeta_{t}$. Another defining characteristic of BASTION is the use of **global-local shrinkage priors** which enable effective smoothing while preserving meaningful local variations. In contrast, smoothing algorithms in other decomposition models often struggle with a trade-off: they either oversmooth, obscuring important local changes, or undersmooth, producing noisy components that are difficult to interpret.
+
+For technical details of BASTION, see the [main paper](inst/paper/main_paper.pdf). To learn more about global-local priors, refer to:
+
+- [@horseshoe]: Horseshoe prior.
+- [@dsp]: Global-Local shrinkage prior on time-series smoothing.

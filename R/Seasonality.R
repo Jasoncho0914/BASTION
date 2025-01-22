@@ -41,13 +41,44 @@ build_Q_season <- function(obs_sigma_t2 = NULL, evol_sigma_t2, Td, k) {
   return(Q)
 }
 #' @keywords internal
+debug_precision <- function(QHt_Matrix){
+  sus = which(rowSums(QHt_Matrix)<0)
+  for(i in sus){
+    rowsum = sum(QHt_Matrix[i,])
+    while(rowsum <0){
+      QHt_Matrix[i,i]  = QHt_Matrix[i,i] - rowsum*100
+      rowsum = sum(QHt_Matrix[i,])
+    }
+  }
+  return(QHt_Matrix)
+}
+#' @keywords internal
 #' @importFrom Matrix t chol  solve
 #' @importFrom stats rnorm
 sampleBeta_season <- function(data, obs_sigma_t2, evol_sigma_t2, Td, k) {
-  Q = build_Q_season(obs_sigma_t2, evol_sigma_t2, Td, k)
+  QHt_Matrix = build_Q_season(obs_sigma_t2, evol_sigma_t2, Td, k)
   linht = data / obs_sigma_t2
-  chQht_Matrix <- Matrix::chol(Q)
-  mu = as.matrix(Matrix::solve(chQht_Matrix, Matrix::solve(Matrix::t(chQht_Matrix), linht) + stats::rnorm(Td)))
+  #chQht_Matrix <- Matrix::chol(Q)
+  #mu = as.matrix(Matrix::solve(chQht_Matrix, Matrix::solve(Matrix::t(chQht_Matrix), linht) + stats::rnorm(Td)))
+  for (attempt in 1:10) {
+    tryCatch(
+      {
+        chQht_Matrix <- Matrix::chol(QHt_Matrix)
+        mu = as.matrix(Matrix::solve(chQht_Matrix, Matrix::solve(Matrix::t(chQht_Matrix), linht) +
+                                       rnorm(Td)))
+        return(mu)  # If successful, return the result
+      },
+      error = function(e) {
+        if (attempt == 10) {
+          stop("Function failed at sampling Seasonality after ", 10, " attempts: ", e$message)
+        } else {
+          message("Error on attempt ", attempt, ": ", e$message)
+          QHt_Matrix = debug_precision(QHt_Matrix)
+          Sys.sleep(1)  # Wait before retrying
+        }
+      }
+    )
+  }
   return(mu)
 }
 #' @keywords internal

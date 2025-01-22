@@ -1,7 +1,0 @@
-bibentry(
-  bibtype  = "Manual",
-  title    = "BASTION: Bayesian Adaptive Seasonal Trend Decomposition Incorporating Outliers and Noise",
-  author   = person("Jason B.", "Cho"),
-  year     = 2025,
-  url      = "https://github.com/Jasoncho0914/BASTION"
-)
