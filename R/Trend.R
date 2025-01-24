@@ -47,41 +47,34 @@ build_Q_trend = function (obs_sigma_t2, evol_sigma_t2, D = 1, Td) {
 #' @keywords internal
 #' @importFrom Matrix t chol  solve
 #' @importFrom stats rnorm
+#' @importFrom spam solve rmvnorm
 sampleTrend <- function(data, obs_sigma_t2, evol_sigma_t2, D = 1, Td) {
-  if ((D < 0) || (D != round(D)))
-    stop("D must be a positive integer")
-  if (any(is.na(data))) {
-    stop("y cannot contain NAs")
-  }
-  linht = data / obs_sigma_t2
-  QHt_Matrix = build_Q_trend(obs_sigma_t2 = obs_sigma_t2,
-                             evol_sigma_t2 = pmax(evol_sigma_t2,1e-16),
-                             D = D,
-                             Td)
-  for (attempt in 1:10) {
-    tryCatch(
-      {
-        chQht_Matrix <- Matrix::chol(QHt_Matrix)
-        mu = as.matrix(Matrix::solve(chQht_Matrix, Matrix::solve(Matrix::t(chQht_Matrix), linht) +
-                                       stats::rnorm(Td)))
-        return(mu)  # If successful, return the result
-      },
-      error = function(e) {
-        if (attempt == 10) {
-          stop("Function failed at sampling Seasonality after ", 10, " attempts: ", e$message)
-        } else {
-          message("Error on attempt ", attempt, ": ", e$message)
-          QHt_Matrix = debug_precision(QHt_Matrix)
-          Sys.sleep(1)  # Wait before retrying
-        }
-      }
-    )
-  }
+  if ((D < 0) || (D != round(D))) stop("D must be a positive integer")
+  if (any(is.na(data))) stop("y cannot contain NAs")
 
-  # chQht_Matrix <- Matrix::chol(QHt_Matrix)
-  # mu = as.matrix(Matrix::solve(chQht_Matrix, Matrix::solve(Matrix::t(chQht_Matrix),
-  #                                                          linht) + stats::rnorm(Td)))
-  return(mu)
+  linht <- data / obs_sigma_t2
+  QHt_Matrix <- build_Q_trend(obs_sigma_t2 = obs_sigma_t2,
+                              evol_sigma_t2 = evol_sigma_t2,
+                              D = D,
+                              Td)
+  tryCatch({
+    # Attempt Cholesky decomposition
+    chQht_Matrix <- Matrix::chol(QHt_Matrix)
+
+    # Compute result using the Cholesky decomposition
+    mu <- as.matrix(Matrix::solve(chQht_Matrix,
+                                  Matrix::solve(Matrix::t(chQht_Matrix), linht) +
+                                    stats::rnorm(Td)))
+    return(mu)
+  },
+  error = function(e) {
+      message("\nTrend Error handling starts")
+      Qinv = spam::solve(QHt_Matrix)
+      message("\nSuccesffully inverts the matrix")
+      mu = as.matrix(t(spam::rmvnorm(1,mean = Qinv %*% linht,Sigma = Qinv)))
+      return(mu)
+    }
+  )
 }
 #' @keywords internal
 #' @import extraDistr
@@ -133,7 +126,7 @@ initEvolParams_HS_sparse <- function(omega,
   lambda_2 = extraDistr::rinvgamma(Td, 1, 1 / x_lambda_t + omega_norm ^
                                      2 / 2)
   #sigma_wt = pmax(sqrt(lambda_2)*tau,1e-7)
-  sigma_wt = pmax(sqrt(lambda_2) * tau, 1e-6)
+  sigma_wt = pmax(sqrt(lambda_2) * tau, 1e-8)
   return(list(
     sigma_wt = sigma_wt,
     tau = tau,
@@ -145,14 +138,14 @@ initEvolParams_HS_sparse <- function(omega,
 sampleEvolParams_HS_sparse <- function(omega,
                                        Td,
                                        evolParams,
-                                       tau = 1 / (100 * Td)){
+                                       tau = 1 / (100*Td)){
   tau = evolParams$tau
   lambda_2 = evolParams$lambda_2
   omega_norm = omega / tau
   x_lambda_t = extraDistr::rinvgamma(Td, 1, 1 + 1 / lambda_2)
   lambda_2 = extraDistr::rinvgamma(Td, 1, 1 / x_lambda_t + omega_norm ^
                                      2 / 2)
-  sigma_wt = pmax(sqrt(lambda_2) * tau, 1e-6)
+  sigma_wt = pmax(sqrt(lambda_2) * tau, 1e-8)
   #sigma_wt = sqrt(lambda_2)*tau
   return(list(
     sigma_wt = sigma_wt,

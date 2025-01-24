@@ -16,7 +16,8 @@ fit_BASTION(
   nsave = 1000,
   nburn = 1000,
   nskip = 4,
-  verbose = TRUE
+  verbose = TRUE,
+  save_samples = FALSE
 )
 }
 \arguments{
@@ -47,7 +48,9 @@ fit_BASTION(
 \item{nskip}{integer scalar (default = 4); number of MCMC iterations to skip between saving iterations,
 i.e., save every (nskip + 1)th draw}
 
-\item{verbose}{logical; should R report extra information on progress? Defaults to FALSE}
+\item{verbose}{logical; report extra information on progress if true. Defaults to FALSE}
+
+\item{save_samples}{logical; save and return posterior samples of each components if true. Default is FALSE}
 }
 \value{
 \code{fit_BASTION} returns an object class list.
@@ -69,7 +72,7 @@ where \code{"k"} is determined by the input.
 }
 
 \section{\code{samples}}{
-
+ (returned only when \code{save_samples} = TRUE)
 A list containing MCMC samples of the relevant parameters:
 \itemize{
 \item \code{beta_combined}: Posterior samples of \strong{Trend + Seasonality}.

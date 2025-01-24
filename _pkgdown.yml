@@ -1,0 +1,5 @@
+template:
+  bootstrap: 5
+  params:
+    bootswatch: pulse
+    light-switch: true

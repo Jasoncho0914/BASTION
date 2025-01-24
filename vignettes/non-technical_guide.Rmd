@@ -1,10 +1,11 @@
 ---
-title: "Time-series decomposition with BASTION"
-output: rmarkdown::html_vignette
+title: "Time-Series Decomposition with BASTION"
+output: 
+  rmarkdown::html_vignette
 bibliography: ref.bib
 csl: apa.csl
 vignette: >
-  %\VignetteIndexEntry{Time-series decomposition with BASTION}
+  %\VignetteIndexEntry{Time-Series Decomposition with BASTION}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,23 +17,31 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Introduction to BASTION
+## 1. Why BASTION?
 
-Bayesian Adaptive Seasonality Trend decomposition Incorporating Outliers and Noise (**BASTION**) is a Bayesian framework for decomposing time series into trend and multiple seasonality. Existing decomposition methods, though widely used, exhibit several limitations: 
+**Bayesian Adaptive Seasonality Trend decomposition Incorporating Outliers and Noise (BASTION)** is a Bayesian framework for decomposing time series into trend and multiple seasonality. Existing decomposition methods, though widely used, exhibit several limitations: 
 
 1. Difficulty in adapting to abrupt changes in the trend, 
 2. Lack of robustness to outliers and heteroskedasticity
 3. Absence of uncertainty quantification,
 4. Inability to accommodate multiple seasonal patterns,
 
-While addressing some of these challenges, no existing model fully resolves all of them. 
+BASTION is the first Bayesian method to effectively address all these challenges in a unified framework.
 
-## Why use BASTION?
-BASTION addresses all five 
-
-In this section, we highlight strength of characteristic via simulated data. Let's consider the following data.
-
+## 2. Example with Simulated Data
+Let's consider following simulated data below:
 ```{r datasim, echo = FALSE}
+# arguments for figures:
+cex_s = 0.8
+cex.axis_s = 1
+cex.axis_s_y = 0.9
+cex.axis_s_x = 0.9
+cex.main_s = 1.75
+cex.lab_s = 1.25
+lwd_s = 2.5
+line = 2.5
+cex_l = 0.8
+margin_size1 = c(4,4,1,1)
 generate_T <- function(n) {
   
   # Generate random parameters
@@ -105,28 +114,11 @@ gen_sim <- function(n,seed){
   y = trend +season1 + season2 + outliers + errors
   return(as.data.frame(cbind(y,trend,season,season1,season2,outliers,errors,vol)))
 }
-```
-
-```{r figures_arg, echo = FALSE}
-# arguments for figures:
-cex_s = 0.8
-cex.axis_s = 1
-cex.axis_s_y = 0.9
-cex.axis_s_x = 0.9
-cex.main_s = 1.75
-cex.lab_s = 1.25
-lwd_s = 2.5
-line = 2.5
-cex_l = 0.8
-margin_size1 = c(4,4,1,1)
-```
-
-
-```{r figures_data, echo = FALSE,fig.width = 8,fig.height = 2.75}
 y=gen_sim(500,2)
+```
 
-# layout(matrix(c(1, 1, 2, 2,
-#                 0, 3, 3, 0), nrow = 2, byrow = TRUE))
+
+```{r figure simulated data, echo = FALSE,fig.width = 9,fig.height = 2.75}
 par(mar = margin_size1)
 plot(y[,"y"], 
      type = "p",
@@ -145,183 +137,524 @@ lines(y[,"trend"], type = "l", lwd = lwd_s, col = "black")
 legend("topright", lwd = 2,lty = c(1,1,2),col = c("black","blue","red"), 
        legend = c("Trend","Trend+Seasonality","Outliers"),
        cex = cex_l)
+title(main = "Simulated Data",cex.lab = cex.lab_s)
 title(ylab = "Observations", cex.lab = cex.lab_s, line = line)
 title(xlab = "Time", cex.lab = cex.lab_s, line = line)
-
-# plot(y[,"season1"][1:100],type = "l",col = "black",ylim = c(-20,20),lwd = lwd_s,
-#      xlab = "",
-#      ylab = "",
-#      main = "",
-#      cex = cex_s,
-#      cex.axis = cex.axis_s,
-#      cex.main = cex.main_s,
-#      axes = FALSE)
-# axis(2,cex.axis = cex.axis_s_y)
-# axis(1,cex.axis = cex.axis_s_x)
-# lines(y[,"season2"][1:100], type = "l", lwd = lwd_s,col = "blue")
-# legend("topright", lwd = 2,lty = 1,col = c("black","blue"),
-#        legend = c("Weekly","Monthly"),
-#        cex = cex_l)
-# title(ylab = "Seasonality", cex.lab = cex.lab_s, line = line)
-# title(xlab = "Time", cex.lab = cex.lab_s, line = line)
-# 
-# plot(y[,"errors"],type = "l",col = "black",lwd = lwd_s,
-#      xlab = "",
-#      ylab = "",
-#      main = "",
-#      cex = cex_s,
-#      cex.axis = cex.axis_s,
-#      cex.main = cex.main_s,
-#      axes = FALSE)
-# axis(2,cex.axis = cex.axis_s_y)
-# axis(1,cex.axis = cex.axis_s_x)
-# title(ylab = "Remainder", cex.lab = cex.lab_s, line = line)
-# title(xlab = "Time", cex.lab = cex.lab_s, line = line)
-#
-
 ```
+**Figure 1**: Simulated Data with abrupt changes in trend, outliers, and heteroskedastic noise term.
 
-Three defining characteristics of the simulated data above are:
 
-1. **Abrupt Changes**: Abrupt changes in trend occur around t = 80, 180 and 250.
-3. **Outliers**: In addition to the trend and seasonality components, outliers are present (drawn in red).
-2. **Heteroskedasticity**: The variance term changes over time with large volatility clustering at t = 300.
+BASTION is fitted along with three other existing methods for comparison:
 
-Let's install and fit BASTION. For comparisons, three other methods MSTL, STR, and TBATS are compared.
-```{r setup}
+  1. **TBATS** by [@tbats] 
+  2. **MSTL** by [@MSTL]
+  3. **STR** by [@STR].
+
+```{r running models for simulation, message=FALSE, warning=FALSE, eval = FALSE}
 #devtools::install_github("Jasoncho0914/BASTION")
-# library(BASTION)
-# library(forecast)
-# library(stR)
-# set.seed(31)
-# BASTION = fit_BASTION(y = y[,"y"],
-#                       Ks = list(7,30),
-#                       Outlier = TRUE,
-#                       cl= 0.95,
-#                       obsSV = "SV",
-#                       nsave = 2000,
-#                       nburn = 4000)
-# y_ts <- forecast::msts(y[,"y"], seasonal.periods=c(7,30))
-# TBATS = forecast::tbats(y_ts)
-# TBATScomp = forecast::tbats.components(TBATS)
-# STR = stR::AutoSTR(y_ts,robust = TRUE,confidence = 0.95)
-# MSTL = forecast::mstl(y_ts)
+library(BASTION)
+#running below takes about 5 minutes total.
+set.seed(40)
+BASTION_sim = fit_BASTION(y = y[,"y"],
+                      Ks = list(7,30),
+                      Outlier = TRUE,
+                      cl= 0.95,
+                      obsSV = "SV",
+                      nsave = 2000,
+                      nburn = 4000)
+y_ts <- forecast::msts(y[,"y"], seasonal.periods=c(7,30))
+TBATS = forecast::tbats(y_ts)
+TBATScomp = forecast::tbats.components(TBATS)
+STR = stR::AutoSTR(y_ts,robust = TRUE,confidence = 0.95)
+MSTL = forecast::mstl(y_ts)
 ```
 
-```{r}
-# sum(BASTION$summary$Trend$CR_upper > y[,"trend"] & BASTION$summary$Trend$CR_lower < y[,"trend"])/500
-# sum(STR$output$predictors[[1]]$upper > y[,"trend"] &  STR$output$predictors[[1]]$lower< y[,"trend"])/500
+```{r, echo = FALSE}
+BASTION_sim <- readRDS("../inst/extdata/BASTION_sim.rds")
+TBATScomp = readRDS("../inst/extdata/TBATScomp.rds")
+STR = readRDS("../inst/extdata/STR.rds")
+MSTL = readRDS("../inst/extdata/MSTL.rds")
+```
+
+One of the defining characteristic of the simulated data we see above is the presence of abrupt changes in trend which occur around t = 74, 156, and 239.  
+
+```{r figures_trend, echo = FALSE, fig.width = 9, fig.height = 5}
+layout(matrix(c(4, 3, 2, 1), nrow = 2, byrow = TRUE))
+par(mar = margin_size1)
+plot(y[,"trend"],
+     type = "p",
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex=cex_s*0.5,
+     cex.axis = cex.axis_s,
+     cex.main = cex.main_s,
+     axes = FALSE
+)
+axis(1,cex.axis = cex.axis_s_x)
+axis(2,cex.axis = cex.axis_s_y)
+# Add the trend line
+lines(BASTION_sim$summary$Trend_sum$CR_upper,type = "l",lwd = lwd_s,col ="blue",lty = 2)
+lines(BASTION_sim$summary$Trend_sum$CR_lower,type = "l",lwd = lwd_s,col ="blue",lty = 2)
+lines(BASTION_sim$summary$Trend_sum$Mean, type = "l", lwd = lwd_s,col = "blue")
+title(ylab = "Observations",cex.lab = cex.lab_s,line = 2.5)
+title(xlab = "Time",cex.lab = cex.lab_s,line = 2.5)
+score = round(mean((y[,"trend"]-BASTION_sim$summary$Trend_sum$Mean)^2),2)
+title(main = paste0("BASTION","\nMSE:",score),cex.lab = cex.lab_s,line = -1)
+#########################
+plot(y[,"trend"],
+     type = "p",
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex=cex_s*0.5,
+     cex.axis = cex.axis_s,
+     cex.main = cex.main_s,
+     axes = FALSE
+)
+axis(1,cex.axis = cex.axis_s_x)
+axis(2,cex.axis = cex.axis_s_y)
+lines(as.numeric(TBATScomp[,"level"]), type = "l", lwd = lwd_s,col = "blue")
+score = round(mean((y[,"trend"]-as.numeric(TBATScomp[,"level"]))^2),2)
+title(main = paste0("TBATS","\nMSE:",score),cex.lab = cex.lab_s,line = -1)
+title(ylab = "Observations",cex.lab = cex.lab_s,line = 2.5)
+title(xlab = "Time",cex.lab = cex.lab_s,line = 2.5)
+###########################
+plot(y[,"trend"],
+     type = "p",
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex=cex_s*0.5,
+     cex.axis = cex.axis_s,
+     cex.main = cex.main_s,
+     axes = FALSE
+)
+axis(1,cex.axis = cex.axis_s_x)
+axis(2,cex.axis = cex.axis_s_y)
+lines(as.numeric(STR$output$predictors[[1]]$data), type = "l", lwd = lwd_s,col = "blue")
+lines(as.numeric(STR$output$predictors[[1]]$upper),type = "l",lwd = lwd_s,col ="blue",lty = 2)
+lines(as.numeric(STR$output$predictors[[1]]$lower),type = "l",lwd = lwd_s,col ="blue",lty = 2)
+score = round(mean((y[,"trend"]-STR$output$predictors[[1]]$data)^2),2)
+title(main = paste0("STR","\nMSE:",score),cex.lab = cex.lab_s,line = -1)
+title(ylab = "Observations",cex.lab = cex.lab_s,line = 2.5)
+title(xlab = "Time",cex.lab = cex.lab_s,line = 2.5)
+#################
+plot(y[,"trend"],
+     type = "p",
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex=cex_s*0.5,
+     cex.axis = cex.axis_s,
+     cex.main = cex.main_s,
+     axes = FALSE
+)
+axis(1,cex.axis = cex.axis_s_x)
+axis(2,cex.axis = cex.axis_s_y)
+lines(as.numeric(MSTL[,"Trend"]), type = "l", lwd = lwd_s,col = "blue")
+score = round(mean((y[,"trend"]-as.numeric(MSTL[,"Trend"]))^2),2)
+title(main = paste0("MSTL","\nMSE:",score),cex.lab = cex.lab_s,line = -1)
+title(ylab = "Observations",cex.lab = cex.lab_s,line = 2.5)
+title(xlab = "Time",cex.lab = cex.lab_s,line = 2.5)
+```
+**Figure 2**: The true trend componenet drawn in black and the estimated trend component by TBATS, MSTL, STR, and BASTION are drawn in blue. Dotted lines represent 95 percent confidence intervals for TBATS and credible regions for STR.
+
+Notice that BASTION provides:
+  
+  - **Adaptive Trend Estimate**: BASTION successfully capture the abrupt changes resulting in the lowest mean squared error (MSE), while also providing smooth estimate.
+  - **Robust Uncertainty Quantification**: BASTION achieves 98 percent empirical coverage based on its 95% credible region. Only other existing decomposition method that provides uncertainty quantification is STR [@STR], the confidence interval provided by STR vastly under-covers with 72.4 percent empirical coverage.
+
+## 3. Daily Electricity Demand in New York State from 2015-07-01 to 2024-06-30.
+Let’s apply BASTION to a real-world dataset by analyzing the average daily electricity demand (measured in megawatts per hour) for New York State. This dataset, sourced from the New York Independent System Operator (NYISO) via the U.S. Energy Information Administration [@nyis_electricity], exhibits a complex long-term trend, intricate seasonal patterns, and heteroskedastic noise. Through time-series decomposition, we will demonstrate how BASTION effectively reveals underlying patterns that are otherwise obscured by noise.
+
+```{r data temp,echo = FALSE}
+devtools::load_all()
+```
+
+```{r data electricity}
+data(NYelectricity)
+```
+
+```{r figures electricity, echo = FALSE, fig.width = 9, fig.height = 2.75}
+#################
+cex_s = 0.8
+cex.axis_s = 1
+cex.axis_s_y = 0.9
+cex.axis_s_x = 0.9
+cex.main_s = 1.75
+cex.lab_s = 1.25
+lwd_s = 2.5
+line = 2.5
+cex_l = 0.8
+margin_size1 = c(4,4,1,1)
+x = as.Date(NYelectricity$Data.Date)
+ylab = "Megawatts"
+title_line = 4
+#######################
+par(mar = margin_size1)
+plot(y = NYelectricity$Demand..MW., 
+     x = x,
+     type = "l",
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex = cex_s, 
+     cex.axis = cex.axis_s_x, 
+     cex.main = cex.main_s,
+     axes = FALSE)
+pretty_y <- pretty(NYelectricity$Demand..MW.)  # Generates nice tick mark values
+axis(2, cex.axis = cex.axis_s_y,
+     at = pretty_y, 
+     labels = format(pretty_y, big.mark = ",", scientific = FALSE), 
+     las = 1)
+axis(1, at = x[seq(1, length(x), length.out = 5)],     # x-axis with tick marks
+     labels = format(x[seq(1, length(x), length.out = 5)], "%Y-%m"),
+     cex.axis = cex.axis_s_x)
+title(ylab = ylab, cex.lab = cex.lab_s, line = title_line)
+```
+**Figure 3**: Daily average electricity demand in New York State from July 1, 2015, to June 30, 2024. The data represent the average hourly electricity demand for each day, aggregated from hourly observations.
+
+Based on the raw data, we see the following:
+
+- **Seasonal Patterns**: Electricity demand peaks during summer months due to air conditioning and rises again in winter for heating needs.
+- **Heteroskedasticity**: Variability is higher in summer and winter (periods of peak demand) and lower during spring and fall (more stable usage).
+- **Long-Term Trends**: No significant long-term trend is observed in electricity demand. A slight overall decline may indicate the influence of improved energy efficiency over the years.
+
+
+### 3.1 Decomposition with BASTION
+
+```{r BASTION elec fit,eval = FALSE}
+library(BASTION)
+set.seed(4)
+BASTION_electric <- fit_BASTION(y = NYelectricity$Demand..MW.,
+                                Ks = list(7,365),
+                                Outlier = TRUE,
+                                sparse = TRUE,
+                                obsSV = "SV",
+                                nsave = 5000,
+                                nburn = 5000)
+elec_ts = forecast::msts(NYelectricity$Demand..MW.,seasonal.periods = c(7,365))
+STR_elec = stR::AutoSTR(elec_ts,confidence = 0.95)
+TBATS_elec = forecast::tbats(elec_ts,use.trend = FALSE,seasonal.periods = c(7,365))
+TBATScomp_elec = forecast::tbats.components(TBATS_elec)
+MSTL_elec = forecast::mstl(elec_ts)
+```
+
+```{r elec model load, echo = FALSE}
+BASTION_electric <- readRDS("../inst/extdata/BASTION_electric.rds")
+STR_elec = readRDS("../inst/extdata/STR_elec.rds")
+TBATScomp_elec = readRDS("../inst/extdata/TBATScomp_elec.rds")
+MSTL_elec = readRDS("../inst/extdata/MSTL_elec.rds")
 ```
 
 
-### Adaptive yet smooth estimate of the 
+```{r figures electricity BASTION, echo = FALSE, fig.width = 9, fig.height = 5}
+cex.axis_s_x = 0.7
+y = NYelectricity$Demand..MW.
+x = as.Date(NYelectricity$Data.Date)
+ylab = "Megawatts"
+title_line = 5.5
+idx = 285:385
+x_idx = x[idx]
 
-```{r figures_trend, echo = FALSE,fig.width = 8,fig.height = 6}
-# layout(matrix(c(4, 3, 2, 1), nrow = 2, byrow = TRUE))
-# par(mar = margin_size1)
-# plot(y[,"trend"],
-#      type = "p",
-#      xlab = "",
-#      ylab = "",
-#      main = "",
-#      cex=cex_s*0.5,
-#      cex.axis = cex.axis_s,
-#      cex.main = cex.main_s,
-#      axes = FALSE
-# )
-# axis(1,cex.axis = cex.axis_s_x)
-# axis(2,cex.axis = cex.axis_s_y)
-# # Add the trend line
-# lines(BASTION$summary$Trend_sum$CR_upper,type = "l",lwd = lwd_s,col ="blue",lty = 2)
-# lines(BASTION$summary$Trend_sum$CR_lower,type = "l",lwd = lwd_s,col ="blue",lty = 2)
-# lines(BASTION$summary$Trend_sum$Mean, type = "l", lwd = lwd_s,col = "blue")
-# title(ylab = "Observations",cex.lab = cex.lab_s,line = 2.5)
-# title(xlab = "Time",cex.lab = cex.lab_s,line = 2.5)
-# title(main = "BASTION",cex.lab = cex.lab_s)
-# #########################
-# plot(y[,"trend"],
-#      type = "p",
-#      xlab = "",
-#      ylab = "",
-#      main = "",
-#      cex=cex_s*0.5,
-#      cex.axis = cex.axis_s,
-#      cex.main = cex.main_s,
-#      axes = FALSE
-# )
-# axis(1,cex.axis = cex.axis_s_x)
-# axis(2,cex.axis = cex.axis_s_y)
-# lines(as.numeric(TBATScomp[,"level"]), type = "l", lwd = lwd_s,col = "blue")
-# title(main = "TBATS",cex.lab = cex.lab_s)
-# title(ylab = "Observations",cex.lab = cex.lab_s,line = 2.5)
-# title(xlab = "Time",cex.lab = cex.lab_s,line = 2.5)
-# ###########################
-# plot(y[,"trend"],
-#      type = "p",
-#      xlab = "",
-#      ylab = "",
-#      main = "",
-#      cex=cex_s*0.5,
-#      cex.axis = cex.axis_s,
-#      cex.main = cex.main_s,
-#      axes = FALSE
-# )
-# axis(1,cex.axis = cex.axis_s_x)
-# axis(2,cex.axis = cex.axis_s_y)
-# lines(as.numeric(STR$output$predictors[[1]]$data), type = "l", lwd = lwd_s,col = "blue")
-# lines(as.numeric(STR$output$predictors[[1]]$upper),type = "l",lwd = lwd_s,col ="blue",lty = 2)
-# lines(as.numeric(STR$output$predictors[[1]]$lower),type = "l",lwd = lwd_s,col ="blue",lty = 2)
-# title(main = "STR",cex.lab = cex.lab_s)
-# title(ylab = "Observations",cex.lab = cex.lab_s,line = 2.5)
-# title(xlab = "Time",cex.lab = cex.lab_s,line = 2.5)
-# #################
-# plot(y[,"trend"],
-#      type = "p",
-#      xlab = "",
-#      ylab = "",
-#      main = "",
-#      cex=cex_s*0.5,
-#      cex.axis = cex.axis_s,
-#      cex.main = cex.main_s,
-#      axes = FALSE
-# )
-# axis(1,cex.axis = cex.axis_s_x)
-# axis(2,cex.axis = cex.axis_s_y)
-# lines(as.numeric(MSTL[,"Trend"]), type = "l", lwd = lwd_s,col = "blue")
-# title(main = "MSTL",cex.lab = cex.lab_s)
-# title(ylab = "Observations",cex.lab = cex.lab_s,line = 2.5)
-# title(xlab = "Time",cex.lab = cex.lab_s,line = 2.5)
+BASTION_t_mean = as.numeric(BASTION_electric$summary$Trend_sum$Mean)
+BASTION_t_upper = BASTION_electric$summary$Trend_sum$CR_upper
+BASTION_t_lower = BASTION_electric$summary$Trend_sum$CR_lower
+
+BASTION7_mean = as.numeric(BASTION_electric$summary$Seasonal7_sum$Mean)[idx]
+BASTION7_upper = BASTION_electric$summary$Seasonal7_sum$CR_upper[idx]
+BASTION7_lower = BASTION_electric$summary$Seasonal7_sum$CR_lower[idx]
+ylim7 = c(floor(min(BASTION7_lower)),ceiling(max(BASTION7_upper)))
+
+#
+BASTION365_mean = as.numeric(BASTION_electric$summary$Seasonal365_sum$Mean)
+BASTION365_upper = BASTION_electric$summary$Seasonal365_sum$CR_upper
+BASTION365_lower = BASTION_electric$summary$Seasonal365_sum$CR_lower
+ylim365 = c(floor(min(BASTION365_lower)),ceiling(max(BASTION365_upper)))
 
 
+BASTION_vol = as.numeric(BASTION_electric$summary$Volatility$Mean)
+BASTION_vol_upper = as.numeric(BASTION_electric$summary$Volatility$CR_upper)
+BASTION_vol_lower = as.numeric(BASTION_electric$summary$Volatility$CR_lower)
+ylim_v = c(floor(min(BASTION_vol_lower)),ceiling(max(BASTION_vol_upper)))
+######################
+layout(matrix(c(3, 1, 2, 4), nrow = 2, byrow = TRUE))
+par(mar = margin_size1)
+plot(y = BASTION7_mean, 
+     x = x_idx,
+     type = "l",
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex = cex_s, 
+     cex.axis = cex.axis_s_x, 
+     cex.main = cex.main_s,
+     axes = FALSE,
+     ylim = ylim7)
+pretty_y <- pretty(c(BASTION7_mean,BASTION7_upper))  # Generates nice tick mark values
+axis(2, cex.axis = cex.axis_s_y,
+     at = pretty_y, 
+     labels = format(pretty_y, big.mark = ",", scientific = FALSE), 
+     las = 1)
+axis(1, at = x_idx[seq(1, length(x_idx), length.out = 6)],     # x-axis with tick marks
+     labels = format(x_idx[seq(1, length(x_idx), length.out = 6)], "%Y-%m"),
+     cex.axis = cex.axis_s_x)
+title(ylab = ylab, cex.lab = cex.lab_s, line = title_line)
+x_coords <- 1:length(BASTION7_mean)  # X-coordinates
+polygon(c(x_idx, rev(x_idx)), 
+        c(BASTION7_upper, 
+          rev(BASTION7_lower)), 
+        col = "grey", border = NA)
+lines(y = BASTION7_mean,
+      x = x_idx, type = "l", lwd =lwd_s)
+title(main = "Weekly Seasonality",cex.lab = cex.lab_s)
+
+
+par(mar = margin_size1)
+plot(y = BASTION365_mean, 
+     x = x,
+     type = "l",
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex = cex_s, 
+     cex.axis = cex.axis_s_x, 
+     cex.main = cex.main_s,
+     axes = FALSE,
+     ylim = ylim365)
+pretty_y <- pretty(c(BASTION365_mean,BASTION365_upper))  # Generates nice tick mark values
+axis(2, cex.axis = cex.axis_s_y,
+     at = pretty_y, 
+     labels = format(pretty_y, big.mark = ",", scientific = FALSE), 
+     las = 1)
+axis(1, at = x[seq(1, length(x), length.out = 6)],     # x-axis with tick marks
+     labels = format(x[seq(1, length(x), length.out = 6)], "%Y-%m"),
+     cex.axis = cex.axis_s_x)
+x_coords <- 1:length(BASTION365_mean)  # X-coordinates
+polygon(c(x, rev(x)), 
+        c(BASTION365_upper, 
+          rev(BASTION365_lower)), 
+        col = "grey", border = NA)
+title(ylab = ylab, cex.lab = cex.lab_s, line = title_line)
+lines(y = BASTION365_mean,
+      x = x, type = "l", lwd =lwd_s)
+title(main = "Yearly Seasonality",cex.lab = cex.lab_s)
+
+par(mar = margin_size1)
+plot(y = y, 
+     x = x,
+     pch = 20,
+     type = "p",
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex = cex_s, 
+     cex.axis = cex.axis_s_x, 
+     cex.main = cex.main_s,
+     axes = FALSE,
+     col = "grey80")
+pretty_y <- pretty(c(y,BASTION_t_upper))  # Generates nice tick mark values
+axis(2, cex.axis = cex.axis_s_y,
+     at = pretty_y, 
+     labels = format(pretty_y, big.mark = ",", scientific = FALSE), 
+     las = 1)
+axis(1, at = x[seq(1, length(x), length.out = 6)],     # x-axis with tick marks
+     labels = format(x[seq(1, length(x), length.out = 6)], "%Y-%m"),
+     cex.axis = cex.axis_s_x)
+title(ylab = ylab, cex.lab = cex.lab_s, line = title_line)
+polygon(c(x, rev(x)), 
+        c(BASTION_t_upper, 
+          rev(BASTION_t_lower)), 
+        col = "grey50", border = NA)
+lines(y = BASTION_t_mean,
+      x = x, type = "l", lwd =lwd_s)
+title(main = "Trend",cex.lab = cex.lab_s)
+
+par(mar = margin_size1)
+plot(y = BASTION_vol, 
+     x = x,
+     type = "l",
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex = cex_s, 
+     cex.axis = cex.axis_s_x, 
+     cex.main = cex.main_s,
+     axes = FALSE,
+     ylim = ylim_v)
+pretty_y <- pretty(c(BASTION_vol,BASTION_vol_upper))  # Generates nice tick mark values
+axis(2, cex.axis = cex.axis_s_y,
+     at = pretty_y, 
+     labels = format(pretty_y, big.mark = ",", scientific = FALSE), 
+     las = 1)
+axis(1, at = x[seq(1, length(x), length.out = 6)],     # x-axis with tick marks
+     labels = format(x[seq(1, length(x), length.out = 6)], "%Y-%m"),
+     cex.axis = cex.axis_s_x)
+title(ylab = ylab, cex.lab = cex.lab_s, line = title_line)
+polygon(c(x, rev(x)), 
+        c(BASTION_vol_upper , 
+          rev(BASTION_vol_lower)), 
+        col = "grey50", border = NA)
+lines(y = BASTION_vol,
+      x = x, type = "l", lwd =lwd_s)
+title(main = "Volatility",cex.lab = cex.lab_s)
 ```
+**Figure 4**: Decomposition of the trend, weekly seasonality, yearly seasonality, and volatility using BASTION for daily average electricity demand from July 1, 2015, to June 30, 2024. Dark grey regions represent the 95% credible intervals. To enhance clarity, weekly seasonality is displayed for the period April 1, 2016, to July 1, 2016.
+
+Notice that BASTION reveals patterns that are not apparent in the raw data:
+
+- **Trend Component**:
+  - A noticeable dip is observed during the winter of 2015–2016, driven by a warmer-than-usual winter caused by a strong El Niño effect, which reduced heating needs.
+  - From January 2016 to April 2016, electricity demand steadily increased, likely due to a colder-than-usual spring in early 2016 that extended heating needs.
+  - During the summer of 2016, electricity demand peaked, reflecting increased air conditioning usage during one of the hottest summers on record.
+  - A noticeable dip in late 2019 likely reflects the impact of COVID-19-related shutdowns.
+- **Seasonality**:
+  - In addition to the yearly seasonal pattern driven by weather, weekly pattern reveals that electricity demand is steady on weekdays and decreases on weekends, consistent with common usage patterns.
+- **Volatility**:
+  - BASTION's time-varying volatility estimate highlights heteroskedasticity in the noise term, with volatility also exhibiting seasonal patterns.
+  - Higher volatility is observed in winter months, while lower volatility occurs during summer, closely aligning with the yearly seasonality pattern.
+  - BASTION uniquely models volatility directly, providing insights that other decomposition methods cannot.
+
+### 3.2 Comparisons to Other Models
+
+I would like to direct our attention to the yearly seasonal estimates in comparison with the ones produced by the three existing models.
+```{r Electricity comparison,echo = FALSE, fig.width = 9, fig.height = 5}
+lwd_s = 1.5
+idx = 1:730
+STR_season = STR_elec$output$predictors[[3]]$data[idx]
+STR_upper = STR_elec$output$predictors[[3]]$upper[idx]
+STR_lower = STR_elec$output$predictors[[3]]$lower[idx]
+TBATS_season = as.numeric(TBATScomp_elec[,"season2"])[idx]
+MSTL_season = as.numeric(MSTL_elec[,"Seasonal365"])[idx]
+BASTION_season = as.numeric(BASTION_electric$summary$Seasonal365_sum$Mean)[idx]
+BASTION_upper = BASTION_electric$summary$Seasonal365_sum$CR_upper[idx]
+BASTION_lower = BASTION_electric$summary$Seasonal365_sum$CR_lower[idx]
+x  = as.Date(NYelectricity$Data.Date)[idx]
+###################
+ylim_s = c(floor(min(c(STR_lower,TBATS_season,
+                       MSTL_season,BASTION_lower))),
+           ceiling(max(c(STR_upper,TBATS_season,
+                         MSTL_season,BASTION_upper))))
+pretty_y <- pretty(ylim_s)  # Generates nice tick mark values
+######################
+layout(matrix(c(1, 2, 3, 4), nrow = 2, byrow = TRUE))
+par(mar = margin_size1)
+plot(y = TBATS_season, 
+     x = x,
+     type = "l",
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex = cex_s, 
+     cex.axis = cex.axis_s_x, 
+     cex.main = cex.main_s,
+     axes = FALSE,
+     ylim = ylim_s,
+     lwd = lwd_s)
+axis(2, cex.axis = cex.axis_s_y,
+     at = pretty_y, 
+     labels = format(pretty_y, big.mark = ",", scientific = FALSE), 
+     las = 1)
+axis(1, at = x[seq(1, length(x), length.out = 6)],     # x-axis with tick marks
+     labels = format(x[seq(1, length(x), length.out = 6)], "%Y-%m"),
+     cex.axis = cex.axis_s_x)
+title(main = "TBATS",cex.lab = cex.lab_s)
+title(ylab = ylab, cex.lab = cex.lab_s, line = title_line)
+
+par(mar = margin_size1)
+plot(y = MSTL_season, 
+     x = x,
+     type = "l",
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex = cex_s, 
+     cex.axis = cex.axis_s_x, 
+     cex.main = cex.main_s,
+     axes = FALSE,
+     ylim = ylim_s,
+     lwd = lwd_s)
+axis(2, cex.axis = cex.axis_s_y,
+     at = pretty_y, 
+     labels = format(pretty_y, big.mark = ",", scientific = FALSE), 
+     las = 1)
+axis(1, at = x[seq(1, length(x), length.out = 6)],     # x-axis with tick marks
+     labels = format(x[seq(1, length(x), length.out = 6)], "%Y-%m"),
+     cex.axis = cex.axis_s_x)
+title(main = "MSTL",cex.lab = cex.lab_s)
+title(ylab = ylab, cex.lab = cex.lab_s, line = title_line)
+
+par(mar = margin_size1)
+plot(y = STR_season, 
+     x = x,
+     type = "l",
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex = cex_s, 
+     cex.axis = cex.axis_s_x, 
+     cex.main = cex.main_s,
+     axes = FALSE,
+     ylim = ylim_s,
+     lwd = lwd_s)
+axis(2, cex.axis = cex.axis_s_y,
+     at = pretty_y, 
+     labels = format(pretty_y, big.mark = ",", scientific = FALSE), 
+     las = 1)
+axis(1, at = x[seq(1, length(x), length.out = 6)],     # x-axis with tick marks
+     labels = format(x[seq(1, length(x), length.out = 6)], "%Y-%m"),
+     cex.axis = cex.axis_s_x)
+title(ylab = ylab, cex.lab = cex.lab_s, line = title_line)
+title(main = "STR",cex.lab = cex.lab_s)
+polygon(c(x, rev(x)), 
+        c(STR_upper, 
+          rev(STR_lower)), 
+        col = "grey", border = NA)
+lines(y = STR_season,
+      x = x, type = "l", lwd =lwd_s)
+
+par(mar = margin_size1)
+plot(y = BASTION_season, 
+     x = x,
+     type = "l",
+     xlab = "",
+     ylab = "",
+     main = "",
+     cex = cex_s, 
+     cex.axis = cex.axis_s_x, 
+     cex.main = cex.main_s,
+     axes = FALSE,
+     ylim = ylim_s,
+     lwd = lwd_s)
+axis(2, cex.axis = cex.axis_s_y,
+     at = pretty_y, 
+     labels = format(pretty_y, big.mark = ",", scientific = FALSE), 
+     las = 1)
+axis(1, at = x[seq(1, length(x), length.out = 6)],     # x-axis with tick marks
+     labels = format(x[seq(1, length(x), length.out = 6)], "%Y-%m"),
+     cex.axis = cex.axis_s_x)
+title(ylab = ylab, cex.lab = cex.lab_s, line = title_line)
+title(main = "BASTION",cex.lab = cex.lab_s)
+polygon(c(x, rev(x)), 
+        c(BASTION_upper, 
+          rev(BASTION_lower)), 
+        col = "grey", border = NA)
+lines(y = BASTION_season,
+      x = x, type = "l", lwd =lwd_s)
+```
+**Figure 5**: Yearly seasonality estimates for daily average electricity demand in New York from July 2015 to June 2017. Estimates from TBATS, MSTL, STR, and BASTION are displayed respectively.
 
 
-### Robust Uncertainty Quantification
-Only other decomposition method that provides uncertainty quantification is Seasonal-Trend decomposition with Regression (STR) by 
+- **Overall Seasonal Patterns**: All methods (BASTION, MSTL, STR, and TBATS) capture the East Coast's seasonal patterns, including peak demand in summer (July and August) due to cooling needs, a decline in fall as temperatures moderate, and a rise in winter reflecting heating requirements.
 
+- **Holiday Season Effect**: BASTION and MSTL detect a 30-day dip in demand (mid-December to mid-January) during the holiday season, reflecting reduced commercial and industrial activity.
 
+- **BASTION's Strength**: BASTION excels at detecting subtle seasonal changes while maintaining smooth, accurate estimates of components.
 
-### Noise and Outlier Modeling
+## 4. Conclusion
+BASTION effectively addresses the limitations of existing time-series decomposition methods by providing adaptive trend estimation, robust handling of outliers, and direct modeling of volatility. Its ability to capture nuanced seasonal patterns and abrupt changes in the data makes it a valuable tool for real-world applications. 
 
+For technical details of BASTION, see the [main paper](inst/paper/main_paper.pdf).
 
-## Data Analysis: Daily Electricity use in New York State from 2015-07-01 to 2024-06-30
-
-
-## How does it work?
-BASTION decomposes a univariate time series \( \{y_t\}_{t=1}^N \) into the following components:
-
-1. **Trend** (\( \{T_t\}_{t=1}^N \)): Captures long-term patterns.
-2. **Seasonality** (\( \{S_{i,t}\}_{t=1}^N \)): Models periodic fluctuations, where \( i \) indexes different seasonalities.
-3. **Outliers** (\( \{\zeta_t\}_{t=1}^N \)): Isolates additive irregularities.
-4. **Remainder** (\( \{R_t\}_{t=1}^N \)): Represents noise.
-
-The observation equation is:
-\[
-y_t = T_t + \sum_{i=1}^P S_{i,t} + \zeta_t + R_t,
-\]
-where \( P \) is the number of seasonal components. In addition to the trend and seasonality, BASTION also explicitly models the outlier term, $\zeta_{t}$. Another defining characteristic of BASTION is the use of **global-local shrinkage priors** which enable effective smoothing while preserving meaningful local variations. In contrast, smoothing algorithms in other decomposition models often struggle with a trade-off: they either oversmooth, obscuring important local changes, or undersmooth, producing noisy components that are difficult to interpret.
-
-For technical details of BASTION, see the [main paper](inst/paper/main_paper.pdf). To learn more about global-local priors, refer to:
-
-- [@horseshoe]: Horseshoe prior.
-- [@dsp]: Global-Local shrinkage prior on time-series smoothing.
+## References

@@ -17,6 +17,7 @@ devtools::install_github("Jasoncho0914/BASTION")
 ---
 
 ## Quick Start
+
 The main function is ```fit_BASTION ```. Following is a quick demonstration using the Airline Passenger data between 1949 to 1960.
 ```r
 data(airtraffic)
@@ -41,17 +42,11 @@ plot(fit$summary$p_means$Remainder,type = "l",lwd = 4,ylab = "Remainder")
 ---
 
 ## Learn More
-To see detailed documentation for the main function
-```r
-?fit_BASTION
-```
 
----
+- **Overview**: Key features and practical applications of BASTION are summarized in the [Non-Technical Guide](docs/non-technical_guide.html).  
+- **Preprint**: For an in-depth discussion, see the accompanying paper:  
+  [BASTION: Bayesian Adaptive Seasonality and Trend Decomposition Incorporating Outliers and Noise](inst/paper/draft.pdf).
 
-## Working paper
-For a detailed discussion of the methodology and results, see the accompanying paper:
-
-[BASTION: Bayesian Adaptive Seasonality and Trend decomposition Incorporating Outliers and Noise](inst/paper/draft.pdf).
 
 ---
 

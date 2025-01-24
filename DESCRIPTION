@@ -2,7 +2,7 @@ Type: Package
 Package: BASTION
 Title: Bayesian Adaptive Seasonality Trend Decomposition incorporating
     Outliers and Noise
-Version: 0.1.0
+Version: 0.0.1
 Author: Jason B. Cho, David S. Matteson
 Maintainer: Jason B. Cho <bc454@cornell.edu>
 Description: We introduce BASTION (Bayesian Adaptive Seasonality and Trend
@@ -29,8 +29,11 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Suggests: 
+Suggests:
     knitr,
-    rmarkdown
+    rmarkdown,
+    devtools,
+    forecast,
+    stR
 VignetteBuilder: knitr
 Depends: R (>= 3.5.0)

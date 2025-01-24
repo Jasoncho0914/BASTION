@@ -289,6 +289,27 @@ fit_ASD = function(y,
 
 }
 #' @keywords internal
+#' @importFrom Matrix chol diag t
+robust_cholesky <- function(matrix) {
+  tryCatch({
+        # Attempt Cholesky decomposition
+        return(suppressWarnings(Matrix::chol(matrix)))  # Return decomposition if successful
+        },
+      error = function(e) {
+        saveRDS(matrix,file = "matrix_pert.rds")
+        sus = which(rowSums(matrix)<0)
+        for(i in sus){
+          rowsum = sum(matrix[i,])
+          while(rowsum <0){
+            matrix[i,i]  = matrix[i,i] - rowsum*10
+            rowsum = sum(matrix[i,])
+          }
+        }
+        return(suppressWarnings(Matrix::chol(matrix)))
+      }
+  )
+}
+#' @keywords internal
 #' @importFrom stats quantile
 summarize_output <- function(mcmc_output,y,Ks,cl,reg,Outlier){
   nKs = length(Ks)
@@ -325,6 +346,12 @@ summarize_output <- function(mcmc_output,y,Ks,cl,reg,Outlier){
                                                CR_lower = lower[, "Outlier"],
                                                CR_upper = upper[, "Outlier"])
   }
+  # summarizing volatility
+  posterior_summary$Volatility = data.frame(
+    Mean = apply(sqrt(mcmc_output$obs_sigma_t2),2,mean),
+    CR_lower =  apply(sqrt(mcmc_output$obs_sigma_t2),2,quantile,alpha_d2),
+    CR_upper =  apply(sqrt(mcmc_output$obs_sigma_t2),2,quantile,1 - alpha_d2))
+
   return(posterior_summary)
 }
 #' @keywords internal
@@ -333,7 +360,7 @@ debug_precision <- function(QHt_Matrix){
   for(i in sus){
     rowsum = sum(QHt_Matrix[i,])
     while(rowsum <0){
-      QHt_Matrix[i,i]  = QHt_Matrix[i,i] - rowsum*100
+      QHt_Matrix[i,i]  = QHt_Matrix[i,i] - rowsum*10
       rowsum = sum(QHt_Matrix[i,])
     }
   }
@@ -383,8 +410,8 @@ run_with_retries <- function(func, retries = 10, delay = 1, ...) {
 #' @param nburn integer scalar (default = 1000); number of MCMC iterations to discard (burn-in)
 #' @param nskip integer scalar (default = 4); number of MCMC iterations to skip between saving iterations,
 #' i.e., save every (nskip + 1)th draw
-#' @param verbose logical; should R report extra information on progress? Defaults to FALSE
-#'
+#' @param verbose logical; report extra information on progress if true. Defaults to FALSE
+#' @param save_samples logical; save and return posterior samples of each components if true. Default is FALSE
 #' @return \code{fit_BASTION} returns an object class list.
 #'
 #' @section `summary`:
@@ -396,7 +423,7 @@ run_with_retries <- function(func, retries = 10, delay = 1, ...) {
 #'   where `"k"` is determined by the input.
 #' - `Outlier_sum`: A matrix containing the posterior mean and 95% credible interval of the outlier component.
 #'
-#' @section `samples`:
+#' @section `samples`: (returned only when `save_samples` = TRUE)
 #' A list containing MCMC samples of the relevant parameters:
 #' - `beta_combined`: Posterior samples of **Trend + Seasonality**.
 #' - `beta`: Posterior samples of each component excluding the remainder.
@@ -409,7 +436,7 @@ run_with_retries <- function(func, retries = 10, delay = 1, ...) {
 #' @export
 fit_BASTION = function(y,Ks,X=NULL,Outlier=FALSE,cl=0.95,sparse = FALSE,obsSV = "const",
                        nchains = 2,nsave = 1000, nburn= 1000, nskip = 4,
-                       verbose = TRUE){
+                       verbose = TRUE,save_samples = FALSE){
   #v2
   y = as.vector(y)
   if (!is.list(Ks)) {
@@ -472,8 +499,12 @@ fit_BASTION = function(y,Ks,X=NULL,Outlier=FALSE,cl=0.95,sparse = FALSE,obsSV = 
                              cl = cl,
                              reg = reg,
                              Outlier = Outlier)
-  return(list(summary = summary,
-              samples = combined_samples$samples))
+  if(save_samples){
+    return(list(summary = summary,
+                samples = combined_samples$samples))
+  }else{
+    list(summary = summary)
+  }
 }
 
 
