@@ -265,7 +265,7 @@ Notice that BASTION provides:
   - **Adaptive Trend Estimate**: BASTION successfully capture the abrupt changes resulting in the lowest mean squared error (MSE), while also providing smooth estimate.
   - **Robust Uncertainty Quantification**: BASTION achieves 98 percent empirical coverage based on its 95% credible region. Only other existing decomposition method that provides uncertainty quantification is STR [@STR], the confidence interval provided by STR vastly under-covers with 72.4 percent empirical coverage.
 
-## 3. Daily Electricity Demand in New York State from 2015-07-01 to 2024-06-30.
+## 3. Daily Electricity Demand in New York State.
 Let’s apply BASTION to a real-world dataset by analyzing the average daily electricity demand (measured in megawatts per hour) for New York State. This dataset, sourced from the New York Independent System Operator (NYISO) via the U.S. Energy Information Administration [@nyis_electricity], exhibits a complex long-term trend, intricate seasonal patterns, and heteroskedastic noise. Through time-series decomposition, we will demonstrate how BASTION effectively reveals underlying patterns that are otherwise obscured by noise.
 
 ```{r data temp,echo = FALSE}
@@ -655,6 +655,6 @@ lines(y = BASTION_season,
 ## 4. Conclusion
 BASTION effectively addresses the limitations of existing time-series decomposition methods by providing adaptive trend estimation, robust handling of outliers, and direct modeling of volatility. Its ability to capture nuanced seasonal patterns and abrupt changes in the data makes it a valuable tool for real-world applications. 
 
-For technical details of BASTION, see the [main paper](inst/paper/main_paper.pdf).
+For technical details of BASTION, see the [main paper](docs/paper/main_paper.pdf).
 
 ## References

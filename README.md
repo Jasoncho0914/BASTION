@@ -34,18 +34,18 @@ plot(fit$summary$p_means$Seasonal12,type= "l",lwd = 4,ylab = "Seasonality (k=12)
 plot(fit$summary$p_means$Remainder,type = "l",lwd = 4,ylab = "Remainder")
 ```
 <p align="center">
-  <img src="inst/figures/trend.PNG" alt="Trend estimate with the observed data" width="30%">
-  <img src="inst/figures/seasonality.PNG" alt="Seasonality estimate" width="30%">
-  <img src="inst/figures/remainder.PNG" alt="Remainder" width="30%">
+  <img src="figures/trend.PNG" alt="Trend estimate with the observed data" width="30%">
+  <img src="figures/seasonality.PNG" alt="Seasonality estimate" width="30%">
+  <img src="figures/remainder.PNG" alt="Remainder" width="30%">
 </p>
 
 ---
 
 ## Learn More
 
-- **Overview**: Key features and practical applications of BASTION are summarized in the [Non-Technical Guide](docs/articles/non-technical_guide.html).  
+- **Overview**: Key features and practical applications of BASTION are summarized in the [Non-Technical Guide](articles/non-technical_guide.html).  
 - **Preprint**: For an in-depth discussion, see the accompanying paper:  
-  [BASTION: Bayesian Adaptive Seasonality and Trend Decomposition Incorporating Outliers and Noise](inst/paper/draft.pdf).
+  [BASTION: Bayesian Adaptive Seasonality and Trend Decomposition Incorporating Outliers and Noise](paper/draft.pdf).
 
 
 ---
