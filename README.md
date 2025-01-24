@@ -43,7 +43,7 @@ plot(fit$summary$p_means$Remainder,type = "l",lwd = 4,ylab = "Remainder")
 
 ## Learn More
 
-- **Overview**: Key features and practical applications of BASTION are summarized in the [Non-Technical Guide](docs/non-technical_guide.html).  
+- **Overview**: Key features and practical applications of BASTION are summarized in the [Non-Technical Guide](docs/articles/non-technical_guide.html).  
 - **Preprint**: For an in-depth discussion, see the accompanying paper:  
   [BASTION: Bayesian Adaptive Seasonality and Trend Decomposition Incorporating Outliers and Noise](inst/paper/draft.pdf).
 
