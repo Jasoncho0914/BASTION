@@ -655,6 +655,6 @@ lines(y = BASTION_season,
 ## 4. Conclusion
 BASTION effectively addresses the limitations of existing time-series decomposition methods by providing adaptive trend estimation, robust handling of outliers, and direct modeling of volatility. Its ability to capture nuanced seasonal patterns and abrupt changes in the data makes it a valuable tool for real-world applications. 
 
-For technical details of BASTION, see the [main paper](paper/BASTION_20250124.pdf).
+For technical details of BASTION, see the [main paper](https://jasoncho0914.github.io/BASTION/paper/BASTION_20250124.pdf).
 
 ## References

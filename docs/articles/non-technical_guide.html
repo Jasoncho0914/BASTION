@@ -103,7 +103,7 @@ Hyndman, 2022)</span>.</li>
 </ol>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#devtools::install_github("Jasoncho0914/BASTION")</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">BASTION</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jasoncho0914.github.io/BASTION/">BASTION</a></span><span class="op">)</span></span>
 <span><span class="co">#running below takes about 5 minutes total.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">40</span><span class="op">)</span></span>
 <span><span class="va">BASTION_sim</span> <span class="op">=</span> <span class="fu"><a href="../reference/fit_BASTION.html">fit_BASTION</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span><span class="op">[</span>,<span class="st">"y"</span><span class="op">]</span>,</span>
@@ -177,7 +177,7 @@ the influence of improved energy efficiency over the years.</li>
 <h3 id="decomposition-with-bastion">3.1 Decomposition with BASTION<a class="anchor" aria-label="anchor" href="#decomposition-with-bastion"></a>
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">BASTION</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jasoncho0914.github.io/BASTION/">BASTION</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
 <span><span class="va">BASTION_electric</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_BASTION.html">fit_BASTION</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">NYelectricity</span><span class="op">$</span><span class="va">Demand..MW.</span>,</span>
 <span>                                Ks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">7</span>,<span class="fl">365</span><span class="op">)</span>,</span>
@@ -271,7 +271,8 @@ decomposition methods by providing adaptive trend estimation, robust
 handling of outliers, and direct modeling of volatility. Its ability to
 capture nuanced seasonal patterns and abrupt changes in the data makes
 it a valuable tool for real-world applications.</p>
-<p>For technical details of BASTION, see the <a href="paper/BASTION_20250124.pdf">main paper</a>.</p>
+<p>For technical details of BASTION, see the <a href="https://jasoncho0914.github.io/BASTION/paper/BASTION_20250124.pdf">main
+paper</a>.</p>
 </div>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
