@@ -37,3 +37,4 @@ Suggests:
     stR
 VignetteBuilder: knitr
 Depends: R (>= 3.5.0)
+URL: https://jasoncho0914.github.io/BASTION/

@@ -2,7 +2,7 @@
 % Please edit documentation in R/main_functions.R
 \name{fit_BASTION}
 \alias{fit_BASTION}
-\title{Decomposition of time series data with Bayesian Adaptive Seasonality Trend Decomposition Incorporating Outlier and Noise (BASION)}
+\title{Decomposition of time series data with Bayesian Adaptive Seasonality Trend decomposition Incorporating Outlier and Noise (BASTION)}
 \usage{
 fit_BASTION(
   y,

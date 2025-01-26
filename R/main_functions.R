@@ -391,7 +391,7 @@ run_with_retries <- function(func, retries = 10, delay = 1, ...) {
     )
   }
 }
-#' Decomposition of time series data with Bayesian Adaptive Seasonality Trend Decomposition Incorporating Outlier and Noise (BASION)
+#' Decomposition of time series data with Bayesian Adaptive Seasonality Trend decomposition Incorporating Outlier and Noise (BASTION)
 #'
 #' decompose time series data using BASTION. The time series should be a vector.
 #' @param y numeric vector of the \code{T x 1} vector of time series observations

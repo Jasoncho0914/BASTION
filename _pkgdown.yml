@@ -1,6 +1,5 @@
+url: https://jasoncho0914.github.io/BASTION/
 template:
   bootstrap: 5
-  url: https://Jasoncho0914.github.io/BASTION
   params:
     bootswatch: pulse
-    light-switch: true
