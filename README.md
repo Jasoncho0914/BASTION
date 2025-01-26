@@ -44,7 +44,7 @@ plot(fit$summary$p_means$Remainder,type = "l",lwd = 4,ylab = "Remainder")
 ## Learn More
 
 - [**Overview**](https://jasoncho0914.github.io/BASTION/articles/non-technical_guide.html): Key features and practical applications of BASTION are summarized.
-- [**Preprint**](paper/BASTION_20250124.pdf): For an in-depth discussion, see this accompanying paper.
+- [**Preprint**](https://jasoncho0914.github.io/pdf/BASTION_20250124.pdf): For an in-depth discussion, see this accompanying paper.
 
 ---
 
