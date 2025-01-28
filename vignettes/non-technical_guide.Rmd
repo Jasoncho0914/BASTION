@@ -87,11 +87,11 @@ gen_sim <- function(n,seed){
   trend = generate_T(n)$T_values
   
   # remainder
-  error_sd <- stochvol::svsim(n, mu = 4, phi = 0.98, sigma = 0.3, nu = Inf, rho = 0)
-  errors = rnorm(n,0,error_sd$vol)
-  vol = error_sd$vol
-  # errors = rnorm(n,0,5)
-  # vol = 5
+  # error_sd <- stochvol::svsim(n, mu = 4, phi = 0.98, sigma = 0.3, nu = Inf, rho = 0)
+  # errors = rnorm(n,0,error_sd$vol)
+  # vol = error_sd$vol
+  errors = rnorm(n,0,5)
+  vol = 5
   period1 <- 7
   period2 <- 30
 
@@ -105,7 +105,7 @@ gen_sim <- function(n,seed){
   season2 <- season2 - mean(season2) # Adjust to make the first term 0
   season = season1 + season2
   #Outlier term  
-  n_outliers = rpois(1,5)
+  n_outliers = 3
   outlier_ind = sample(c(5:n),size = n_outliers,replace = FALSE)
   outliers = numeric(n)
   outliers[outlier_ind] = rcauchy(n_outliers,loc = 35,scale = 4)*
@@ -114,7 +114,7 @@ gen_sim <- function(n,seed){
   y = trend +season1 + season2 + outliers + errors
   return(as.data.frame(cbind(y,trend,season,season1,season2,outliers,errors,vol)))
 }
-y=gen_sim(500,2)
+y=gen_sim(500,4)
 ```
 
 
@@ -153,15 +153,15 @@ BASTION is fitted along with three other existing methods for comparison:
 ```{r running models for simulation, message=FALSE, warning=FALSE, eval = FALSE}
 #devtools::install_github("Jasoncho0914/BASTION")
 library(BASTION)
-#running below takes about 5 minutes total.
+#running below takes about 2 ~ 3 minutes total.
 set.seed(40)
 BASTION_sim = fit_BASTION(y = y[,"y"],
                       Ks = list(7,30),
                       Outlier = TRUE,
                       cl= 0.95,
-                      obsSV = "SV",
+                      obsSV = "const",
                       nsave = 2000,
-                      nburn = 4000)
+                      nburn = 5000)
 y_ts <- forecast::msts(y[,"y"], seasonal.periods=c(7,30))
 TBATS = forecast::tbats(y_ts)
 TBATScomp = forecast::tbats.components(TBATS)
@@ -176,7 +176,7 @@ STR = readRDS("../inst/extdata/STR.rds")
 MSTL = readRDS("../inst/extdata/MSTL.rds")
 ```
 
-One of the defining characteristic of the simulated data we see above is the presence of abrupt changes in trend which occur around t = 74, 156, and 239.  
+One of the defining characteristic of the simulated data we see above is the presence of abrupt changes in trend which occur around t = 199, 250, and 402.  
 
 ```{r figures_trend, echo = FALSE, fig.width = 9, fig.height = 5}
 layout(matrix(c(4, 3, 2, 1), nrow = 2, byrow = TRUE))
@@ -258,25 +258,31 @@ title(main = paste0("MSTL","\nMSE:",score),cex.lab = cex.lab_s,line = -1)
 title(ylab = "Observations",cex.lab = cex.lab_s,line = 2.5)
 title(xlab = "Time",cex.lab = cex.lab_s,line = 2.5)
 ```
-**Figure 2**: The true trend componenet drawn in black and the estimated trend component by TBATS, MSTL, STR, and BASTION are drawn in blue. Dotted lines represent 95 percent confidence intervals for TBATS and credible regions for STR.
+**Figure 2**: The true trend component drawn in black and the estimated trend component by TBATS, MSTL, STR, and BASTION are drawn in blue. Dotted lines represent 95 percent confidence intervals for TBATS and credible regions for STR.
+
+```{r}
+print(paste0(
+  "STR (Empirical Coverage): ",
+  sum(as.numeric(STR$output$predictors[[1]]$upper) > y[,"trend"] & 
+      as.numeric(STR$output$predictors[[1]]$lower) < y[,"trend"])/length(y[,"trend"])*100,"%"))
+print(paste0(
+  "STR (Empirical Coverage): ",
+  sum(as.numeric(BASTION_sim$summary$Trend_sum$CR_upper) > y[,"trend"] & 
+      as.numeric(BASTION_sim$summary$Trend_sum$CR_lower) < y[,"trend"])/length(y[,"trend"])*100,"%"))
+```
+
 
 Notice that BASTION provides:
   
   - **Adaptive Trend Estimate**: BASTION successfully capture the abrupt changes resulting in the lowest mean squared error (MSE), while also providing smooth estimate.
-  - **Robust Uncertainty Quantification**: BASTION achieves 98 percent empirical coverage based on its 95% credible region. Only other existing decomposition method that provides uncertainty quantification is STR [@STR], the confidence interval provided by STR vastly under-covers with 72.4 percent empirical coverage.
+  - **Robust Uncertainty Quantification**: BASTION achieves 100 percent empirical coverage based on its credible region. Only other existing decomposition method that provides uncertainty quantification is STR [@STR], the confidence interval provided by STR vastly under-covers with 78.8 percent empirical coverage.
 
 ## 3. Daily Electricity Demand in New York State.
 Let’s apply BASTION to a real-world dataset by analyzing the average daily electricity demand (measured in megawatts per hour) for New York State. This dataset, sourced from the New York Independent System Operator (NYISO) via the U.S. Energy Information Administration [@nyis_electricity], exhibits a complex long-term trend, intricate seasonal patterns, and heteroskedastic noise. Through time-series decomposition, we will demonstrate how BASTION effectively reveals underlying patterns that are otherwise obscured by noise.
 
-```{r data temp,echo = FALSE}
-devtools::load_all()
-```
-
-```{r data electricity}
-data(NYelectricity)
-```
 
 ```{r figures electricity, echo = FALSE, fig.width = 9, fig.height = 2.75}
+library(BASTION)
 #################
 cex_s = 0.8
 cex.axis_s = 1
@@ -324,16 +330,18 @@ Based on the raw data, we see the following:
 
 ### 3.1 Decomposition with BASTION
 
-```{r BASTION elec fit,eval = FALSE}
+```{r BASTION elec fit,eval = FALSE,echo = FALSE}
 library(BASTION)
-set.seed(4)
+set.seed(100)
+# this take about an one and half hour to run
 BASTION_electric <- fit_BASTION(y = NYelectricity$Demand..MW.,
                                 Ks = list(7,365),
                                 Outlier = TRUE,
                                 sparse = TRUE,
                                 obsSV = "SV",
                                 nsave = 5000,
-                                nburn = 5000)
+                                nburn = 5000,
+                                nchains = 1)
 elec_ts = forecast::msts(NYelectricity$Demand..MW.,seasonal.periods = c(7,365))
 STR_elec = stR::AutoSTR(elec_ts,confidence = 0.95)
 TBATS_elec = forecast::tbats(elec_ts,use.trend = FALSE,seasonal.periods = c(7,365))

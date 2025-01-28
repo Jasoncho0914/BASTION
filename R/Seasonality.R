@@ -43,36 +43,19 @@ build_Q_season <- function(obs_sigma_t2 = NULL, evol_sigma_t2, Td, k) {
 #' @keywords internal
 #' @importFrom Matrix t chol  solve
 #' @importFrom stats rnorm
-#' @importFrom spam solve rmvnorm
 sampleBeta_season <- function(data, obs_sigma_t2, evol_sigma_t2, Td, k) {
   QHt_Matrix = build_Q_season(obs_sigma_t2,
                               evol_sigma_t2,
                               Td,
                               k)
   linht = data / obs_sigma_t2
-  # chQht_Matrix <- robust_cholesky(QHt_Matrix)
-  #
-  # # Compute result using the Cholesky decomposition
-  # mu <- as.matrix(Matrix::solve(chQht_Matrix,
-  #                               Matrix::solve(Matrix::t(chQht_Matrix), linht) +
-  #                                 stats::rnorm(Td)))
-  # return(mu)
-  tryCatch({
-    # Attempt Cholesky decomposition
-    chQht_Matrix <- Matrix::chol(QHt_Matrix)
+  chQht_Matrix <- robust_cholesky(QHt_Matrix)
 
-    # Compute result using the Cholesky decomposition
-    mu <- as.matrix(Matrix::solve(chQht_Matrix,
-                                  Matrix::solve(Matrix::t(chQht_Matrix), linht) +
-                                    stats::rnorm(Td)))
-    return(mu)
-  },
-  error = function(e) {
-    Qinv = spam::solve(QHt_Matrix)
-    mu = as.matrix(t(spam::rmvnorm(1,mean = Qinv %*% linht,Sigma = Qinv)))
-    return(mu)
-  }
-  )
+  mu <- as.matrix(Matrix::solve(chQht_Matrix,
+                                Matrix::solve(Matrix::t(chQht_Matrix),
+                                              linht) +
+                                  stats::rnorm(Td)))
+  return(mu)
 }
 #' @keywords internal
 init_Sbeta <- function(data, obserror, evol_error, k) {
@@ -133,13 +116,11 @@ fit_Sbeta <- function(data, sParam, obserror, evol_error, k) {
   s_mu = sampleBeta_season(
     data,
     obs_sigma_t2 = obs_sigma_2T ^ 2,
-    evol_sigma_t2 = (
-      obs_sigma_e *
-        c(sParam$s_evolParams23$sigma_w0,
-          sParam$s_evolParams3k$sigma_wt,
-          sParam$s_evolParamskT$sigma_wt
-        )
-    ) ^ 2,
+    evol_sigma_t2 = robust_prod(obs_sigma_e^2,
+                                c(sParam$s_evolParams23$sigma_w0,
+                                  sParam$s_evolParams3k$sigma_wt,
+                                  sParam$s_evolParamskT$sigma_wt
+                                )^2),
     Td = Td,
     k = k
   )

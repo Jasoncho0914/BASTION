@@ -57,24 +57,14 @@ sampleTrend <- function(data, obs_sigma_t2, evol_sigma_t2, D = 1, Td) {
                               evol_sigma_t2 = evol_sigma_t2,
                               D = D,
                               Td)
-  tryCatch({
-    # Attempt Cholesky decomposition
-    chQht_Matrix <- Matrix::chol(QHt_Matrix)
+  chQht_Matrix <- robust_cholesky(QHt_Matrix)
 
-    # Compute result using the Cholesky decomposition
-    mu <- as.matrix(Matrix::solve(chQht_Matrix,
-                                  Matrix::solve(Matrix::t(chQht_Matrix), linht) +
+  mu <- as.matrix(Matrix::solve(chQht_Matrix,
+                                  Matrix::solve(Matrix::t(chQht_Matrix),
+                                                linht) +
                                     stats::rnorm(Td)))
-    return(mu)
-  },
-  error = function(e) {
-      message("\nTrend Error handling starts")
-      Qinv = spam::solve(QHt_Matrix)
-      message("\nSuccesffully inverts the matrix")
-      mu = as.matrix(t(spam::rmvnorm(1,mean = Qinv %*% linht,Sigma = Qinv)))
-      return(mu)
-    }
-  )
+  return(mu)
+
 }
 #' @keywords internal
 #' @import extraDistr
@@ -119,13 +109,12 @@ sampleEvolParams_HS <- function(omega, evolParams, Td) {
 #' @import extraDistr
 initEvolParams_HS_sparse <- function(omega,
                                      Td,
-                                     tau = 1 / (100 * Td)) {
+                                     tau = 1 / (1000 * Td)) {
   #nmin1 = 0
   omega_norm = omega / tau
   x_lambda_t = rep(100, Td)
   lambda_2 = extraDistr::rinvgamma(Td, 1, 1 / x_lambda_t + omega_norm ^
                                      2 / 2)
-  #sigma_wt = pmax(sqrt(lambda_2)*tau,1e-7)
   sigma_wt = pmax(sqrt(lambda_2) * tau, 1e-8)
   return(list(
     sigma_wt = sigma_wt,
@@ -138,7 +127,7 @@ initEvolParams_HS_sparse <- function(omega,
 sampleEvolParams_HS_sparse <- function(omega,
                                        Td,
                                        evolParams,
-                                       tau = 1 / (100*Td)){
+                                       tau = 1 / (1000 * Td)){
   tau = evolParams$tau
   lambda_2 = evolParams$lambda_2
   omega_norm = omega / tau
@@ -146,7 +135,6 @@ sampleEvolParams_HS_sparse <- function(omega,
   lambda_2 = extraDistr::rinvgamma(Td, 1, 1 / x_lambda_t + omega_norm ^
                                      2 / 2)
   sigma_wt = pmax(sqrt(lambda_2) * tau, 1e-8)
-  #sigma_wt = sqrt(lambda_2)*tau
   return(list(
     sigma_wt = sigma_wt,
     tau = tau,
@@ -154,12 +142,13 @@ sampleEvolParams_HS_sparse <- function(omega,
   ))
 }
 #' @keywords internal
+#'
 init_Tbeta <- function(data, obserror, evol_error, D, sparse) {
   Td = length(data)
   s_mu = sampleTrend(
     data,
     obs_sigma_t2 = obserror$sigma_et ^ 2,
-    evol_sigma_t2 = 0.01 * rep(1, Td),
+    evol_sigma_t2 = robust_prod(0.01,rep(1,Td)),
     D = D,
     Td
   )
@@ -200,9 +189,9 @@ fit_Tbeta <- function(data,
   s_mu = sampleTrend(
     data,
     obs_sigma_t2 = obserror$sigma_et ^ 2,
-    evol_sigma_t2 =(obs_sigma_e *
-                      c(tParam$s_evolParams0$sigma_w0, tParam$s_evolParams$sigma_wt)
-    ) ^2,
+    evol_sigma_t2 = robust_prod(obs_sigma_e^2,
+                                c(tParam$s_evolParams0$sigma_w0,
+                                  tParam$s_evolParams$sigma_wt)^2),
     D = D,
     Td = tParam$Td
   )

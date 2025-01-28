@@ -2,7 +2,7 @@ Type: Package
 Package: BASTION
 Title: Bayesian Adaptive Seasonality Trend Decomposition incorporating
     Outliers and Noise
-Version: 0.0.1
+Version: 0.1.0
 Author: Jason B. Cho, David S. Matteson
 Maintainer: Jason B. Cho <bc454@cornell.edu>
 Description: We introduce BASTION (Bayesian Adaptive Seasonality and Trend

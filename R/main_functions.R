@@ -289,6 +289,295 @@ fit_ASD = function(y,
 
 }
 #' @keywords internal
+#' @importFrom stats approxfun rnorm
+fit_ASD_SV = function(y,
+                      Ks,
+                      X = NULL,
+                      Outlier = FALSE,
+                      sparse = FALSE,
+                      obsSV = "const",
+                      nsave = 1000,
+                      nburn = 1000,
+                      nskip = 4,
+                      verbose = TRUE) {
+  D = 2;evol_error = "HS";
+  SVm = (obsSV == "SV")
+  ASVm = (obsSV == "ASV")
+  reg = !is.null(X) # is it regression
+  if (reg & !is.matrix(X)) {
+    stop("X needs to be a matrix")
+  }
+  nKs = length(Ks) # number of seasonality
+  TT = length(y)
+  t01 = seq(0, 1, length.out = TT)
+  is.missing = which(is.na(y))
+  any.missing = (length(is.missing) > 0)
+  y = stats::approxfun(t01, y, rule = 2)(t01)
+  offset_y = mean(y)
+  norm_y = sd(y)
+  y = (y - offset_y)/norm_y
+
+  # list of parameters
+  params_list = list()
+  # parameter matrices
+  dims_er = c(TT, nKs + 1)
+  dims_b =  c(TT, nKs + 1)
+  dimnames_er = c(paste0("Seasonal", Ks), "Trend")
+  dimnames_b = c(paste0("Seasonal", Ks), "Trend")
+  col_trend = nKs + 1
+  if (reg & Outlier) {
+    col_reg = nKs + 2
+    col_out_b = nKs + 3
+    col_out_e = nKs + 2
+    dims_b[2] = dims_b[2] + 2
+    dims_er[2] = dims_er[2] + 1
+    dimnames_b = c(dimnames_b, "Regression", "Outlier")
+    dimnames_er = c(dimnames_er, "Regression")
+  } else if (Outlier) {
+    col_out_b = nKs + 2
+    col_out_e = nKs + 2
+    dims_b[2] = dims_b[2] + 1
+    dims_er[2] = dims_er[2] + 1
+    dimnames_b = c(dimnames_b, "Outlier")
+    dimnames_er = c(dimnames_er, "Outlier")
+  } else if (reg) {
+    col_reg = nKs + 2
+    dims_b[2] = dims_b[2] + 1
+    dimnames_b = c(dimnames_b, "Regression")
+  }
+  error_mat = array(
+    data = NA,
+    dim = dims_er,
+    dimnames = list(NULL, dimnames_er)
+  )
+  beta_mat  = array(
+    data = NA,
+    dim = dims_b,
+    dimnames = list(NULL, dimnames_b)
+  )
+
+  #initializing estimates
+  # yts = forecast::msts(y,seasonal.periods = unlist(Ks))
+  # ie = forecast::mstl(yts)
+  # Initializing parameters
+  ## observation error
+  obserror = init_sigmaE_0(y)
+
+  ## Seasonality
+  for (ik in 1:nKs) {
+    sParam = init_Sbeta(y,
+                        obserror,
+                        evol_error = "HS",
+                        Ks[[ik]])
+    cn = sParam$colname
+    params_list[[cn]] = sParam
+    beta_mat[, cn] = sParam$s_mu
+    error_mat[, cn] = c(
+      sParam$s_evolParams23$sigma_w0,
+      sParam$s_evolParams3k$sigma_wt,
+      sParam$s_evolParamskT$sigma_wt
+    ) ^ 2
+  }
+  ## trend Parameter Sv
+  tParam = init_Tbeta(y, obserror, evol_error, D, sparse)
+  params_list[["Trend"]] = tParam
+  beta_mat[, "Trend"] = tParam$s_mu
+  error_mat[, "Trend"] = c(tParam$s_evolParams0$sigma_w0 ^ 2,
+                           tParam$s_evolParams$sigma_wt ^ 2)
+
+  ## Regression
+  if (reg) {
+    bParam = init_Regression(y, X, obserror)
+    params_list[["Regression"]] = bParam
+    beta_mat[, "Regression"] = bParam$s_mu
+  }
+
+  if (Outlier) {
+    zParam = init_Outlier(y, obserror)
+    params_list[["Outlier"]] = zParam
+    beta_mat[, "Outlier"] = zParam$s_mu
+    error_mat[-c(1:4), "Outlier"] = zParam$s_evolParams$sigma_wt ^ 2
+  }
+
+  if (SVm) {
+    svParam = dsp_initSV(y - rowSums(beta_mat))
+    obserror$sigma_et = svParam$sigma_wt
+    obserror$sigma_e = 1
+  }else if(ASVm){
+    svParam = init_paramsASV(log((y - rowSums(beta_mat))^2))
+    obserror$sigma_et = svParam$sigma_wt
+    obserror$sigma_e = 1
+  }
+
+  # Store the MCMC output in separate arrays (better computation times)
+  mcmc_output = list()
+  post_obs_sigma_t2 = array(NA, c(nsave, TT))
+
+  #Mean Matrix
+  post_s_beta = array(NA, c(nsave, dims_b), dimnames = list(NULL, NULL, dimnames_b))
+  #Error Matrix
+  post_s_evol_sigma_t2 = array(NA, c(nsave, dims_er), dimnames = list(NULL, NULL, dimnames_er))
+
+  #remainder
+  post_remainder = array(NA, c(nsave, TT))
+
+  # Regression
+  if (reg) {
+    p = ncol(X)
+    post_reg = array(NA, c(nsave, p))
+  }
+
+  #combined beta
+  post_beta_combined = array(NA, c(nsave, TT))
+
+  #yhat
+  post_yhat = array(NA, c(nsave, TT))
+
+  # Total number of MCMC simulations:
+  nstot = nburn + (nskip + 1) * (nsave)
+  skipcount = 0
+  isave = 0 # For counting
+
+  # Run the MCMC:
+  #if(verbose) timer0 = proc.time()[3] # For timing the sampler
+  if (verbose) {
+    pb <- progress::progress_bar$new(
+      format = "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated time remaining: :eta]",
+      total = nstot,
+      complete = "=",
+      incomplete = "-",
+      current = ">",
+      clear = FALSE,
+      width = 100
+    )
+  }
+
+  for (nsi in 1:nstot) {
+    if (verbose) {
+      if (nsi < 10) {
+        pb$tick()
+      }
+      else if (((nsi %% 100) == 0)) {
+        pb$tick(100)
+      }
+    }
+
+    if(SVm){
+      #obserror = fit_sigmaE_0_m_SV(y,params_list,TT,svParam = svParam)
+      svParam = dsp_sampleSVparams(y - rowSums(beta_mat),svParam)
+      obserror$sigma_et = svParam$sigma_wt
+
+    }else if(ASVm){
+      #obserror = fit_sigmaE_0_m_SV(y,params_list,TT,svParam = svParam)
+      svParam = fit_paramsASV(log(((y - rowSums(beta_mat)))^2),svParam)
+      obserror$sigma_et = svParam$sigma_wt
+
+    }else{
+      obserror = fit_sigmaE_0_m(y, params_list, TT)
+    }
+
+    if (reg) {
+      bParam = fit_Regression(y - rowSums(beta_mat[, -col_reg, drop = FALSE]),
+                              X,
+                              params_list[["Regression"]],
+                              obserror)
+      params_list[["Regression"]] = bParam
+      beta_mat[, "Regression"] = bParam$s_mu
+    }
+
+    for (ik in 1:nKs) {
+      sParam = fit_Sbeta(y - rowSums(beta_mat[, -ik, drop = FALSE]),
+                         params_list[[ik]],
+                         obserror,
+                         evol_error,
+                         Ks[[ik]])
+
+      cn = sParam$colname
+      params_list[[cn]] = sParam
+      beta_mat[, cn] = sParam$s_mu
+      error_mat[, cn] = c(
+        sParam$s_evolParams23$sigma_w0,
+        sParam$s_evolParams3k$sigma_wt,
+        sParam$s_evolParamskT$sigma_wt
+      ) ^ 2
+      # error_mat[-1, cn] = c(
+      #   sParam$s_evolParams23$sigma_w0,
+      #   sParam$s_evolParams3k$sigma_wt,
+      #   sParam$s_evolParamskT$sigma_wt
+      # ) ^ 2
+    }
+    tParam_data = y - rowSums(beta_mat[, -(col_trend), drop = FALSE])
+    tParam = fit_Tbeta(tParam_data, tParam, obserror, evol_error, D, sparse)
+    params_list[["Trend"]] = tParam
+    beta_mat[, "Trend"] = tParam$s_mu
+    error_mat[, "Trend"] = c(tParam$s_evolParams0$sigma_w0 ^ 2,
+                             tParam$s_evolParams$sigma_wt ^ 2)
+
+    if (Outlier) {
+      zParam = fit_Outlier(y - rowSums(beta_mat[, -(col_out_b)]), zParam, obserror)
+      params_list[["Outlier"]] = zParam
+      beta_mat[, "Outlier"] = zParam$s_mu
+      #error_mat[,"Outlier"] = zParam$s_evolParams$sigma_wt^2
+      error_mat[-c(1:4), "Outlier"] = zParam$s_evolParams$sigma_wt ^ 2
+    }
+    #plot(log(((y - rowSums(beta_mat))/obserror$sigma_e)^2))
+    # Stor the MCMC output:
+    if (nsi > nburn) {
+      # Increment the skip counter:
+      skipcount = skipcount + 1
+
+      # Save the iteration:
+      if (skipcount > nskip) {
+        # Increment the save index
+        isave = isave + 1
+
+        # observation error
+        post_obs_sigma_t2[isave, ] = obserror$sigma_et ^ 2
+
+        #Mean Matrix
+        post_s_beta[isave, , ] = beta_mat
+
+        #Error Matrix
+        post_s_evol_sigma_t2[isave, , ] = error_mat
+
+        #combined beta
+        beta_combined = rowSums(beta_mat)
+        post_beta_combined[isave, ] = beta_combined
+
+        #Regression
+        if (reg) {
+          post_reg[isave, ] = bParam$beta
+        }
+
+        #remainder
+        post_remainder[isave, ] = y - beta_combined
+
+        #yhat
+        post_yhat[isave, ] = beta_combined + obserror$sigma_et * stats::rnorm(TT)
+        # And reset the skip counter:
+        skipcount = 0
+      }
+    }
+  }
+  posterior_samples = list()
+  posterior_samples$beta_combined = post_beta_combined*norm_y
+  post_s_beta = post_s_beta*norm_y
+  post_s_beta[, , "Trend"] = post_s_beta[, , "Trend"] + offset_y
+  posterior_samples$beta = post_s_beta
+
+  posterior_samples$evol_sigma_t2 = post_s_evol_sigma_t2
+  posterior_samples$obs_sigma_t2 = robust_prod(post_obs_sigma_t2,norm_y^2)
+  posterior_samples$remainder = post_remainder
+  if (reg) {
+    posterior_samples$reg_coef = post_reg
+  }
+  posterior_samples$yhat = post_yhat
+
+  mcmc_output$samples = posterior_samples
+  return(mcmc_output)
+
+}
+#' @keywords internal
 #' @importFrom Matrix chol diag t
 robust_cholesky <- function(matrix) {
   tryCatch({
@@ -296,6 +585,7 @@ robust_cholesky <- function(matrix) {
         return(suppressWarnings(Matrix::chol(matrix)))  # Return decomposition if successful
         },
       error = function(e) {
+        message("Numerically Unstable...")
         saveRDS(matrix,file = "matrix_pert.rds")
         sus = which(rowSums(matrix)<0)
         for(i in sus){
@@ -308,6 +598,14 @@ robust_cholesky <- function(matrix) {
         return(suppressWarnings(Matrix::chol(matrix)))
       }
   )
+}
+#' @keywords internal
+robust_prod <- function(a,b){
+  return(exp(log(a) + log(b)))
+}
+#' @keywords internal
+robust_div <- function(a,b){
+  return(exp(log(a) - log(b)))
 }
 #' @keywords internal
 #' @importFrom stats quantile
@@ -455,29 +753,21 @@ fit_BASTION = function(y,Ks,X=NULL,Outlier=FALSE,cl=0.95,sparse = FALSE,obsSV = 
     evol_sigma_t2 = function(x, y) abind::abind(x, y, along = 1),
     obs_sigma_t2 = rbind,
     remainder = rbind,
-    Yhat = rbind
+    yhat = rbind
   )
 
   for(i in 1:nchains){
     print(paste("Chain",i))
-    # model = run_with_retries(fit_ASD,
-    #                          retries = retries,
-    #                          delay = 1,
-    #                          y = y,
-    #                          X = X,
-    #                          Ks = Ks,
-    #                          Outlier = Outlier,
-    #                          obsSV = obsSV,
-    #                          ...)
-    model = fit_ASD(y = y,
-                    X = X,
-                    Ks = Ks,
-                    Outlier = Outlier,
-                    obsSV = obsSV,
-                    nsave = nsave,
-                    nburn = nburn,
-                    nskip = nskip,
-                    verbose = verbose)
+    model = fit_ASD_SV(y = y,
+                       X = X,
+                       Ks = Ks,
+                       Outlier = Outlier,
+                       sparse = sparse,
+                       obsSV = obsSV,
+                       nsave = nsave,
+                       nburn = nburn,
+                       nskip = nskip,
+                       verbose = verbose)
     if(i ==1){
       combined_samples = model
     }else{
