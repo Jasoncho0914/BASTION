@@ -3,7 +3,7 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   non-technical_guide: non-technical_guide.html
-last_built: 2025-01-28T20:39Z
+last_built: 2025-01-28T20:45Z
 urls:
   reference: https://jasoncho0914.github.io/BASTION/reference
   article: https://jasoncho0914.github.io/BASTION/articles
