@@ -1,5 +1,6 @@
 # R session files
-.Rproj.user
+.Rproj.user/
+.Rproj
 .Rhistory
 .RData
 .Ruserdata
@@ -9,6 +10,7 @@
 
 # macOS system files
 .DS_Store
+*/.DS_Store
 
 # Compiled files
 *.o
