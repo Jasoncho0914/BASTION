@@ -264,11 +264,13 @@ title(xlab = "Time",cex.lab = cex.lab_s,line = 2.5)
 print(paste0(
   "STR (Empirical Coverage): ",
   sum(as.numeric(STR$output$predictors[[1]]$upper) > y[,"trend"] & 
-      as.numeric(STR$output$predictors[[1]]$lower) < y[,"trend"])/length(y[,"trend"])*100,"%"))
+      as.numeric(STR$output$predictors[[1]]$lower) < y[,"trend"])/length(y[,"trend"])*100,
+  "%"))
 print(paste0(
   "BASTION (Empirical Coverage): ",
   sum(as.numeric(BASTION_sim$summary$Trend_sum$CR_upper) > y[,"trend"] & 
-      as.numeric(BASTION_sim$summary$Trend_sum$CR_lower) < y[,"trend"])/length(y[,"trend"])*100,"%"))
+      as.numeric(BASTION_sim$summary$Trend_sum$CR_lower) < y[,"trend"])/length(y[,"trend"])*100,
+  "%"))
 ```
 
 

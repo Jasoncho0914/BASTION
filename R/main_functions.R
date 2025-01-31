@@ -586,15 +586,16 @@ robust_cholesky <- function(matrix) {
         },
       error = function(e) {
         message("Numerically Unstable...")
-        saveRDS(matrix,file = "matrix_pert.rds")
+        #saveRDS(matrix,file = "matrix_pert.rds")
         sus = which(rowSums(matrix)<0)
         for(i in sus){
           rowsum = sum(matrix[i,])
           while(rowsum <0){
-            matrix[i,i]  = matrix[i,i] - rowsum*10
+            matrix[i,i]  = matrix[i,i] - rowsum*100
             rowsum = sum(matrix[i,])
           }
         }
+        message("stabilized matrix")
         return(suppressWarnings(Matrix::chol(matrix)))
       }
   )

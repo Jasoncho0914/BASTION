@@ -1,7 +1,28 @@
+# R session files
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
-inst/doc
-README.md
-docs
+
+# R package build files
+.Rbuildignore
+
+# macOS system files
+.DS_Store
+
+# Compiled files
+*.o
+*.so
+*.dll
+
+# R package check results
+.Rcheck/
+
+# Temporary files
+*.log
+*.out
+*.aux
+
+# Dependency management
+packrat/
+renv.lock
