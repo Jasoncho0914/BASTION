@@ -84,7 +84,7 @@ challenges in a unified framework.</p>
 <h2 id="example-with-simulated-data">2. Example with Simulated Data<a class="anchor" aria-label="anchor" href="#example-with-simulated-data"></a>
 </h2>
 <p>Let’s consider following simulated data below:</p>
-<p><img src="non-technical_guide_files/figure-html/figure%20simulated%20data-1.png" width="864"><strong>Figure 1</strong>: Simulated Data with abrupt changes in trend,
+<p><img src="non-technical_guide_files/figure-html/figure%20simulated%20data-1.png" class="r-plt" alt="" width="864"><strong>Figure 1</strong>: Simulated Data with abrupt changes in trend,
 outliers, and heteroskedastic noise term.</p>
 <p>BASTION is fitted along with three other existing methods for
 comparison:</p>
@@ -121,7 +121,7 @@ Hyndman, 2022)</span>.</li>
 <p>One of the defining characteristic of the simulated data we see above
 is the presence of abrupt changes in trend which occur around t = 199,
 250, and 402.</p>
-<p><img src="non-technical_guide_files/figure-html/figures_trend-1.png" width="864"><strong>Figure 2</strong>: The true trend component drawn in black and
+<p><img src="non-technical_guide_files/figure-html/figures_trend-1.png" class="r-plt" alt="" width="864"><strong>Figure 2</strong>: The true trend component drawn in black and
 the estimated trend component by TBATS, MSTL, STR, and BASTION are drawn
 in blue. Dotted lines represent 95 percent confidence intervals for
 TBATS and credible regions for STR.</p>
@@ -164,7 +164,7 @@ trend, intricate seasonal patterns, and heteroskedastic noise. Through
 time-series decomposition, we will demonstrate how BASTION effectively
 reveals underlying patterns that are otherwise obscured by noise.</p>
 <pre><code><span><span class="co">#&gt; Welcome to BASTION!</span></span></code></pre>
-<p><img src="non-technical_guide_files/figure-html/figures%20electricity-1.png" width="864"><strong>Figure 3</strong>: Daily average electricity demand in New York
+<p><img src="non-technical_guide_files/figure-html/figures%20electricity-1.png" class="r-plt" alt="" width="864"><strong>Figure 3</strong>: Daily average electricity demand in New York
 State from July 1, 2015, to June 30, 2024. The data represent the
 average hourly electricity demand for each day, aggregated from hourly
 observations.</p>
@@ -186,7 +186,7 @@ the influence of improved energy efficiency over the years.</li>
 <div class="section level3">
 <h3 id="decomposition-with-bastion">3.1 Decomposition with BASTION<a class="anchor" aria-label="anchor" href="#decomposition-with-bastion"></a>
 </h3>
-<p><img src="non-technical_guide_files/figure-html/figures%20electricity%20BASTION-1.png" width="864"><strong>Figure 4</strong>: Decomposition of the trend, weekly
+<p><img src="non-technical_guide_files/figure-html/figures%20electricity%20BASTION-1.png" class="r-plt" alt="" width="864"><strong>Figure 4</strong>: Decomposition of the trend, weekly
 seasonality, yearly seasonality, and volatility using BASTION for daily
 average electricity demand from July 1, 2015, to June 30, 2024. Dark
 grey regions represent the 95% credible intervals. To enhance clarity,
@@ -239,7 +239,7 @@ other decomposition methods cannot.</li>
 </h3>
 <p>I would like to direct our attention to the yearly seasonal estimates
 in comparison with the ones produced by the three existing models.
-<img src="non-technical_guide_files/figure-html/Electricity%20comparison-1.png" width="864"><strong>Figure 5</strong>: Yearly seasonality estimates for daily
+<img src="non-technical_guide_files/figure-html/Electricity%20comparison-1.png" class="r-plt" alt="" width="864"><strong>Figure 5</strong>: Yearly seasonality estimates for daily
 average electricity demand in New York from July 2015 to June 2017.
 Estimates from TBATS, MSTL, STR, and BASTION are displayed
 respectively.</p>
@@ -306,7 +306,7 @@ electricity demand data</em>. <a href="https://www.eia.gov/electricity/gridmonit
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
