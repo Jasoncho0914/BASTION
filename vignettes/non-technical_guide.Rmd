@@ -340,7 +340,7 @@ set.seed(100)
 BASTION_electric <- fit_BASTION(y = NYelectricity$Demand..MW.,
                                 Ks = list(7,365),
                                 Outlier = TRUE,
-                                sparse = FALSE,
+                                sparse = TRUE,
                                 obsSV = "SV",
                                 nsave = 5000,
                                 nburn = 5000,

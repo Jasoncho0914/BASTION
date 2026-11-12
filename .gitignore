@@ -27,3 +27,7 @@
 # Dependency management
 packrat/
 renv.lock
+
+# Local analysis and maintenance files
+/analysis/
+/maintenance/
