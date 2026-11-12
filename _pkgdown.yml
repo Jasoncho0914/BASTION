@@ -3,3 +3,26 @@ template:
   bootstrap: 5
   params:
     bootswatch: pulse
+
+reference:
+- title: Data
+  contents:
+  - NYelectricity
+  - airtraffic
+- title: Model fitting
+  contents:
+  - fit_BASTION
+  - fit_BASTION_calendar
+- title: Plots and summaries
+  contents:
+  - plot.bastion_fit
+  - plot_component
+  - print.bastion_fit
+  - summary.bastion_fit
+- title: Simulation
+  contents:
+  - simulate_BASTION
+  - simulate_BASTION_calendar
+
+redirects:
+- [NEWS.html, news/index.html]

@@ -106,7 +106,7 @@ fit_ASD = function(y,
     params_list[["Outlier"]] = zParam
     beta_mat[, "Outlier"] = zParam$s_mu
     #error_mat[,"Outlier"] = zParam$s_evolParams$sigma_wt^2
-    error_mat[-c(1:4), "Outlier"] = zParam$s_evolParams$sigma_wt ^ 2
+    error_mat[, "Outlier"] = zParam$s_evolParams$sigma_wt ^ 2
   }
 
   if (SVm) {
@@ -148,26 +148,11 @@ fit_ASD = function(y,
   # Run the MCMC:
   #if(verbose) timer0 = proc.time()[3] # For timing the sampler
   if (verbose) {
-    pb <- progress::progress_bar$new(
-      format = "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated time remaining: :eta]",
-      total = nstot,
-      complete = "=",
-      incomplete = "-",
-      current = ">",
-      clear = FALSE,
-      width = 100
-    )
+    pb <- .bastion_progress_bar(nstot)
   }
 
   for (nsi in 1:nstot) {
-    if (verbose) {
-      if (nsi < 10) {
-        pb$tick()
-      }
-      else if (((nsi %% 100) == 0)) {
-        pb$tick(100)
-      }
-    }
+    if (verbose) .bastion_progress_tick(pb,nsi,nstot)
 
     if(SVm){
       obserror = fit_sigmaE_0_m_SV(y,params_list,TT,svParam = svParam)
@@ -230,7 +215,7 @@ fit_ASD = function(y,
       params_list[["Outlier"]] = zParam
       beta_mat[, "Outlier"] = zParam$s_mu
       #error_mat[,"Outlier"] = zParam$s_evolParams$sigma_wt^2
-      error_mat[-c(1:4), "Outlier"] = zParam$s_evolParams$sigma_wt ^ 2
+      error_mat[, "Outlier"] = zParam$s_evolParams$sigma_wt ^ 2
     }
     #plot(log(((y - rowSums(beta_mat))/obserror$sigma_e)^2))
     # Stor the MCMC output:
@@ -299,8 +284,10 @@ fit_ASD_SV = function(y,
                       nsave = 1000,
                       nburn = 1000,
                       nskip = 4,
-                      verbose = TRUE) {
-  D = 2;evol_error = "HS";
+                      verbose = TRUE, D_trend = 2L,
+                      seasonality_model = c("seasonality3", "seasonality")) {
+  seasonality_model = match.arg(seasonality_model)
+  D = .validate_D_trend(D_trend);evol_error = "HS";
   SVm = (obsSV == "SV")
   ASVm = (obsSV == "ASV")
   reg = !is.null(X) # is it regression
@@ -332,7 +319,7 @@ fit_ASD_SV = function(y,
     dims_b[2] = dims_b[2] + 2
     dims_er[2] = dims_er[2] + 1
     dimnames_b = c(dimnames_b, "Regression", "Outlier")
-    dimnames_er = c(dimnames_er, "Regression")
+    dimnames_er = c(dimnames_er, "Outlier")
   } else if (Outlier) {
     col_out_b = nKs + 2
     col_out_e = nKs + 2
@@ -365,18 +352,19 @@ fit_ASD_SV = function(y,
 
   ## Seasonality
   for (ik in 1:nKs) {
-    sParam = init_Sbeta(y,
-                        obserror,
-                        evol_error = "HS",
-                        Ks[[ik]])
+    # Differenced-state sampler: sParam = init_Sbeta(y, obserror, evol_error="HS", Ks[[ik]])
+    sParam = if(seasonality_model == "seasonality") {
+      init_Sbeta(y, obserror, evol_error="HS", k=Ks[[ik]])
+    } else {
+      init_Sbeta3(y, obserror, evol_error="HS", k=Ks[[ik]])
+    }
     cn = sParam$colname
     params_list[[cn]] = sParam
     beta_mat[, cn] = sParam$s_mu
-    error_mat[, cn] = c(
-      sParam$s_evolParams23$sigma_w0,
-      sParam$s_evolParams3k$sigma_wt,
-      sParam$s_evolParamskT$sigma_wt
-    ) ^ 2
+    # The former T innovation variances do not exist in this model.
+    error_mat[, cn] = if(seasonality_model == "seasonality") c(
+        sParam$s_evolParams23$sigma_w0, sParam$s_evolParams3k$sigma_wt,
+        sParam$s_evolParamskT$sigma_wt)^2 else NA_real_
   }
   ## trend Parameter Sv
   tParam = init_Tbeta(y, obserror, evol_error, D, sparse)
@@ -396,7 +384,7 @@ fit_ASD_SV = function(y,
     zParam = init_Outlier(y, obserror)
     params_list[["Outlier"]] = zParam
     beta_mat[, "Outlier"] = zParam$s_mu
-    error_mat[-c(1:4), "Outlier"] = zParam$s_evolParams$sigma_wt ^ 2
+    error_mat[, "Outlier"] = zParam$s_evolParams$sigma_wt ^ 2
   }
 
   if (SVm) {
@@ -417,6 +405,25 @@ fit_ASD_SV = function(y,
   post_s_beta = array(NA, c(nsave, dims_b), dimnames = list(NULL, NULL, dimnames_b))
   #Error Matrix
   post_s_evol_sigma_t2 = array(NA, c(nsave, dims_er), dimnames = list(NULL, NULL, dimnames_er))
+
+  post_template_variance = lapply(Ks, function(k) matrix(NA_real_, nsave, k))
+  names(post_template_variance) = paste0("Seasonal", Ks)
+  post_common_seasonality = lapply(Ks, function(k) matrix(NA_real_, nsave, k))
+  names(post_common_seasonality) = paste0("Seasonal", Ks)
+  post_sv_parameters = if(SVm) matrix(NA_real_, nsave, 3L,
+    dimnames=list(NULL,c("mu","phi","innovation_sd"))) else NULL
+  post_delta_variance = matrix(NA_real_, nsave, nKs,
+    dimnames=list(NULL,paste0("Seasonal", Ks)))
+  if(seasonality_model == "seasonality3") {
+    post_delta_global_variance = matrix(NA_real_, nsave, nKs,
+      dimnames=list(NULL,paste0("Seasonal", Ks)))
+    post_delta_local_variance = lapply(Ks,function(k)
+      matrix(NA_real_,nsave,ceiling(TT/k)-1L))
+    names(post_delta_local_variance) = paste0("Seasonal", Ks)
+    post_delta_innovation_variance = post_delta_local_variance
+    post_delta_sampler_backend = matrix(NA_character_,nsave,nKs,
+      dimnames=list(NULL,paste0("Seasonal", Ks)))
+  }
 
   #remainder
   post_remainder = array(NA, c(nsave, TT))
@@ -441,26 +448,11 @@ fit_ASD_SV = function(y,
   # Run the MCMC:
   #if(verbose) timer0 = proc.time()[3] # For timing the sampler
   if (verbose) {
-    pb <- progress::progress_bar$new(
-      format = "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated time remaining: :eta]",
-      total = nstot,
-      complete = "=",
-      incomplete = "-",
-      current = ">",
-      clear = FALSE,
-      width = 100
-    )
+    pb <- .bastion_progress_bar(nstot)
   }
 
   for (nsi in 1:nstot) {
-    if (verbose) {
-      if (nsi < 10) {
-        pb$tick()
-      }
-      else if (((nsi %% 100) == 0)) {
-        pb$tick(100)
-      }
-    }
+    if (verbose) .bastion_progress_tick(pb,nsi,nstot)
 
     if(SVm){
       #obserror = fit_sigmaE_0_m_SV(y,params_list,TT,svParam = svParam)
@@ -473,7 +465,13 @@ fit_ASD_SV = function(y,
       obserror$sigma_et = svParam$sigma_wt
 
     }else{
-      obserror = fit_sigmaE_0_m(y, params_list, TT)
+      # The raw seasonal template has rank k; its independent delta
+      # variance does not contribute to the sigma_e conditional.
+      sigma_params = lapply(params_list, function(param) {
+        if (!is.null(param$prior_rank)) param$Td = param$prior_rank
+        param
+      })
+      obserror = fit_sigmaE_0_m(y, sigma_params, TT)
     }
 
     if (reg) {
@@ -486,25 +484,20 @@ fit_ASD_SV = function(y,
     }
 
     for (ik in 1:nKs) {
-      sParam = fit_Sbeta(y - rowSums(beta_mat[, -ik, drop = FALSE]),
-                         params_list[[ik]],
-                         obserror,
-                         evol_error,
-                         Ks[[ik]])
-
+      # Differenced-state sampler: sParam = fit_Sbeta(residual, params_list[[ik]], obserror, evol_error, Ks[[ik]])
+      sParam = if(seasonality_model == "seasonality") {
+        fit_Sbeta(y - rowSums(beta_mat[, -ik, drop=FALSE]),
+          params_list[[ik]], obserror, evol_error, k=Ks[[ik]])
+      } else {
+        fit_Sbeta3(y - rowSums(beta_mat[, -ik, drop=FALSE]),
+          params_list[[ik]], obserror, evol_error, k=Ks[[ik]])
+      }
       cn = sParam$colname
       params_list[[cn]] = sParam
       beta_mat[, cn] = sParam$s_mu
-      error_mat[, cn] = c(
-        sParam$s_evolParams23$sigma_w0,
-        sParam$s_evolParams3k$sigma_wt,
-        sParam$s_evolParamskT$sigma_wt
-      ) ^ 2
-      # error_mat[-1, cn] = c(
-      #   sParam$s_evolParams23$sigma_w0,
-      #   sParam$s_evolParams3k$sigma_wt,
-      #   sParam$s_evolParamskT$sigma_wt
-      # ) ^ 2
+      error_mat[, cn] = if(seasonality_model == "seasonality") c(
+        sParam$s_evolParams23$sigma_w0, sParam$s_evolParams3k$sigma_wt,
+        sParam$s_evolParamskT$sigma_wt)^2 else NA_real_
     }
     tParam_data = y - rowSums(beta_mat[, -(col_trend), drop = FALSE])
     tParam = fit_Tbeta(tParam_data, tParam, obserror, evol_error, D, sparse)
@@ -518,7 +511,7 @@ fit_ASD_SV = function(y,
       params_list[["Outlier"]] = zParam
       beta_mat[, "Outlier"] = zParam$s_mu
       #error_mat[,"Outlier"] = zParam$s_evolParams$sigma_wt^2
-      error_mat[-c(1:4), "Outlier"] = zParam$s_evolParams$sigma_wt ^ 2
+      error_mat[, "Outlier"] = zParam$s_evolParams$sigma_wt ^ 2
     }
     #plot(log(((y - rowSums(beta_mat))/obserror$sigma_e)^2))
     # Stor the MCMC output:
@@ -533,12 +526,29 @@ fit_ASD_SV = function(y,
 
         # observation error
         post_obs_sigma_t2[isave, ] = obserror$sigma_et ^ 2
+        if(SVm)post_sv_parameters[isave, ] = as.numeric(svParam$svParams[,1L])
 
         #Mean Matrix
         post_s_beta[isave, , ] = beta_mat
 
         #Error Matrix
         post_s_evol_sigma_t2[isave, , ] = error_mat
+
+        for (ik in seq_len(nKs)) {
+          seasonal_state = params_list[[ik]]
+          if(seasonality_model == "seasonality") next
+          post_common_seasonality[[ik]][isave, ] = seasonal_state$template * norm_y
+          post_template_variance[[ik]][isave, ] = obserror$sigma_e^2 * c(
+            rep(seasonal_state$s_evolParams0$sigma_w0[1]^2, 2L),
+            seasonal_state$s_evolParamsShape$sigma_wt^2) * norm_y^2
+          post_delta_variance[isave, ik] = seasonal_state$delta_variance * norm_y^2
+          if(seasonality_model == "seasonality3") {
+            post_delta_global_variance[isave,ik] = seasonal_state$delta_hs$tau2 * norm_y^2
+            post_delta_local_variance[[ik]][isave,] = seasonal_state$delta_hs$lambda2
+            post_delta_innovation_variance[[ik]][isave,] = seasonal_state$delta_innovation_variance * norm_y^2
+            post_delta_sampler_backend[isave,ik] = seasonal_state$delta_sampler_backend
+          }
+        }
 
         #combined beta
         beta_combined = rowSums(beta_mat)
@@ -565,6 +575,19 @@ fit_ASD_SV = function(y,
   post_s_beta[, , "Trend"] = post_s_beta[, , "Trend"] + offset_y
   posterior_samples$beta = post_s_beta
 
+  posterior_samples$common_seasonality = post_common_seasonality
+  if(SVm) {
+    post_sv_parameters[,"mu"] = post_sv_parameters[,"mu"] + 2*log(norm_y)
+    posterior_samples$sv_parameters = post_sv_parameters
+  }
+  posterior_samples$seasonal_template_variance = post_template_variance
+  posterior_samples$seasonal_delta_variance = post_delta_variance
+  if(seasonality_model == "seasonality3") {
+    posterior_samples$seasonal_delta_global_variance = post_delta_global_variance
+    posterior_samples$seasonal_delta_local_variance = post_delta_local_variance
+    posterior_samples$seasonal_delta_innovation_variance = post_delta_innovation_variance
+    posterior_samples$seasonal_delta_sampler_backend = post_delta_sampler_backend
+  }
   posterior_samples$evol_sigma_t2 = post_s_evol_sigma_t2
   posterior_samples$obs_sigma_t2 = robust_prod(post_obs_sigma_t2,norm_y^2)
   posterior_samples$remainder = post_remainder
@@ -574,6 +597,7 @@ fit_ASD_SV = function(y,
   posterior_samples$yhat = post_yhat
 
   mcmc_output$samples = posterior_samples
+  mcmc_output$normalization = list(mean=offset_y,sd=norm_y)
   return(mcmc_output)
 
 }
@@ -711,32 +735,80 @@ run_with_retries <- function(func, retries = 10, delay = 1, ...) {
 #' i.e., save every (nskip + 1)th draw
 #' @param verbose logical; report extra information on progress if true. Defaults to FALSE
 #' @param save_samples logical; save and return posterior samples of each components if true. Default is FALSE
-#' @return \code{fit_BASTION} returns an object class list.
+#' @return An object of class `bastion_fit` with `time`, `observed`,
+#'   `components`, `intervals`, `seasonality`, `noise`, optional `regression`,
+#'   and optional `draws`. `components` is a T by M data frame of posterior
+#'   means, with matching lower/upper data frames under `intervals`.
+#' @details BASTION decomposes a time series into a locally adaptive trend, one or more
+#' seasonal components, and optional regression and outlier components. The
+#' components are estimated jointly using Bayesian inference.
 #'
-#' @section `summary`:
-#' A list providing summarized posterior estimates:
-#' - `p_means`: A matrix containing the posterior means of the observed data (`y`) and each decomposed component:
-#'   **Trend**, **Seasonality**, and **Outlier**, if applicable.
-#' - `Trend_sum`: A matrix containing the posterior mean and 95% credible interval of the trend estimate.
-#' - `Seasonal"k"_sum`: A matrix containing the posterior mean and 95% credible interval of the seasonal estimate,
-#'   where `"k"` is determined by the input.
-#' - `Outlier_sum`: A matrix containing the posterior mean and 95% credible interval of the outlier component.
+#' Supply seasonal periods in numbers of observations through `Ks`. For example,
+#' use `list(12)` for yearly seasonality in monthly data, or `list(7, 365)` for
+#' weekly and yearly seasonality in daily data. Each seasonal component combines
+#' a common recurring pattern with deviations that allow the pattern to evolve
+#' across cycles.
 #'
-#' @section `samples`: (returned only when `save_samples` = TRUE)
-#' A list containing MCMC samples of the relevant parameters:
-#' - `beta_combined`: Posterior samples of **Trend + Seasonality**.
-#' - `beta`: Posterior samples of each component excluding the remainder.
-#' - `obs_sigma_t2`: Posterior samples of the variance of the observation equation.
-#' - `evol_sigma_t2`: Posterior samples of the evolution error term.
-#' - `remainder`: Posterior samples of the remainder term.
-#' - `yhat`: Posterior samples of the signal + error term.
+#' The trend uses second differences by default (`D_trend = 2`). Use `D_trend =
+#' 1` for first differences. Setting `sparse = TRUE` applies stronger shrinkage
+#' to trend differences while retaining local adaptivity.
 #'
+#' Use `obsSV = "const"` for constant observation variance or `obsSV = "SV"` to
+#' estimate observation variability over time. Set `Outlier = TRUE` to estimate a
+#' separate outlier component, and supply `X` to include regression effects.
+#'
+#' Component estimates and observation standard deviations are returned in the
+#' units of the supplied data. Posterior means and credible intervals at the
+#' level specified by `cl` are returned whether or not posterior draws are
+#' retained. Set `save_samples = TRUE` to retain the draws.
+#'
+#' Use `print()` for an overview of the fit, `summary()` for the component
+#' estimates, `plot()` for the decomposition, and `plot_component()` to inspect
+#' an individual component with credible intervals.
+#'
+#' @param D_trend Trend difference order: 1 for first differences or 2 for
+#'   second differences (default). Does not change seasonal differencing.
 #' @import progress spam abind
+#' @seealso [simulate_BASTION()]
+#' @examples
+#' \dontrun{
+#' # Daily observations with fixed weekly and yearly periods
+#' sim <- simulate_BASTION("daily", seed = 20)
+#' fit_daily <- fit_BASTION(
+#'   y = sim$y,
+#'   Ks = list(7, 365),
+#'   obsSV = "const", nchains = 1
+#' )
+#' plot(fit_daily)
+#' plot_component(fit_daily, "seasonal_365", part = "recurring")
+#'
+#' # A pattern repeating every 14 observations
+#' sim <- simulate_BASTION("biweekly", seed = 21)
+#' fit_biweekly <- fit_BASTION(
+#'   y = sim$y,
+#'   Ks = list(14),
+#'   obsSV = "const", nchains = 1
+#' )
+#' plot_component(fit_biweekly, "seasonal_14")
+#'
+#' # Hourly observations with daily and weekly periods
+#' sim <- simulate_BASTION("hourly", seed = 22)
+#' fit_hourly <- fit_BASTION(
+#'   y = sim$y,
+#'   Ks = list(24, 168),
+#'   obsSV = "const", nchains = 1
+#' )
+#' plot(fit_hourly)
+#' }
 #' @export
 fit_BASTION = function(y,Ks,X=NULL,Outlier=FALSE,cl=0.95,sparse = FALSE,obsSV = "const",
                        nchains = 2,nsave = 1000, nburn= 1000, nskip = 4,
-                       verbose = TRUE,save_samples = FALSE){
-  #v2
+                       verbose = TRUE,save_samples = FALSE,D_trend = 2L){
+  # Shared recurring templates and group-horseshoe seasonal differences.
+  seasonality_model = "seasonality3"
+  # seasonality_model = "seasonality" # Differenced-state seasonal model.
+  D_trend = .validate_D_trend(D_trend)
+  observation_time = if(stats::is.ts(y)) as.numeric(stats::time(y)) else seq_along(y)
   y = as.vector(y)
   if (!is.list(Ks)) {
     stop("Ks needs to be a list")
@@ -752,13 +824,24 @@ fit_BASTION = function(y,Ks,X=NULL,Outlier=FALSE,cl=0.95,sparse = FALSE,obsSV = 
     beta_combined = rbind,
     beta = function(x, y) abind::abind(x, y, along = 1),
     evol_sigma_t2 = function(x, y) abind::abind(x, y, along = 1),
+    common_seasonality = function(x,y) Map(rbind,x,y),
+    seasonal_template_variance = function(x,y) Map(rbind,x,y),
+    seasonal_delta_variance = rbind,
+    sv_parameters = rbind,
     obs_sigma_t2 = rbind,
     remainder = rbind,
     yhat = rbind
   )
+  if(seasonality_model == "seasonality3") {
+    elements_to_combine = c(elements_to_combine,list(
+      seasonal_delta_global_variance = rbind,
+      seasonal_delta_local_variance = function(x,y)Map(rbind,x,y),
+      seasonal_delta_innovation_variance = function(x,y)Map(rbind,x,y),
+      seasonal_delta_sampler_backend = rbind))
+  }
 
   for(i in 1:nchains){
-    print(paste("Chain",i))
+    .bastion_progress_chain(i,verbose)
     model = fit_ASD_SV(y = y,
                        X = X,
                        Ks = Ks,
@@ -768,7 +851,9 @@ fit_BASTION = function(y,Ks,X=NULL,Outlier=FALSE,cl=0.95,sparse = FALSE,obsSV = 
                        nsave = nsave,
                        nburn = nburn,
                        nskip = nskip,
-                       verbose = verbose)
+                       verbose = verbose,
+                       D_trend = D_trend,
+                       seasonality_model = seasonality_model)
     if(i ==1){
       combined_samples = model
     }else{
@@ -784,18 +869,18 @@ fit_BASTION = function(y,Ks,X=NULL,Outlier=FALSE,cl=0.95,sparse = FALSE,obsSV = 
       }
     }
   }
-  summary = summarize_output(mcmc_output = combined_samples$samples,
-                             y = y,
-                             Ks = Ks,
-                             cl = cl,
-                             reg = reg,
-                             Outlier = Outlier)
-  if(save_samples){
-    return(list(summary = summary,
-                samples = combined_samples$samples))
-  }else{
-    list(summary = summary)
-  }
+  .bastion_fitted_object(combined_samples$samples,y,observation_time,Ks,X,
+    Outlier,obsSV,cl,nchains,nsave,nburn,nskip,save_samples,
+    combined_samples$normalization$sd,
+    input_metadata=list(Ks=Ks),sparse=sparse,D_trend=D_trend)
 }
 
 
+
+# Validate before initialization or random-number generation.
+.validate_D_trend <- function(D_trend) {
+  if(!is.numeric(D_trend) || length(D_trend)!=1L ||
+     !is.finite(D_trend) || !(D_trend %in% c(1,2)))
+    stop("D_trend must be 1 or 2")
+  as.integer(D_trend)
+}

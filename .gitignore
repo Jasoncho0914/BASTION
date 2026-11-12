@@ -6,7 +6,6 @@
 .Ruserdata
 
 # R package build files
-.Rbuildignore
 
 # macOS system files
 .DS_Store

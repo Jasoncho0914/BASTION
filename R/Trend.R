@@ -145,7 +145,7 @@ sampleEvolParams_HS_sparse <- function(omega,
 #'
 init_Tbeta <- function(data, obserror, evol_error, D, sparse) {
   Td = length(data)
-  s_mu = sampleTrend(
+  s_mu = sampleTrend_auto(
     data,
     obs_sigma_t2 = obserror$sigma_et ^ 2,
     evol_sigma_t2 = robust_prod(0.01,rep(1,Td)),
@@ -186,7 +186,7 @@ fit_Tbeta <- function(data,
                       sparse) {
   obs_sigma_e  = obserror$sigma_e
 
-  s_mu = sampleTrend(
+  s_mu = sampleTrend_auto(
     data,
     obs_sigma_t2 = obserror$sigma_et ^ 2,
     evol_sigma_t2 = robust_prod(obs_sigma_e^2,

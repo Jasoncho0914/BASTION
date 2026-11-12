@@ -1,0 +1,8 @@
+^analysis$
+^maintenance$
+^dev$
+^docs$
+^\.github$
+^BASTION\.Rproj$
+^_pkgdown\.yml$
+^\.DS_Store$
