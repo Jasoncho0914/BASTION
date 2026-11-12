@@ -19,9 +19,11 @@ challenges in a unified framework.
 
 Let’s consider following simulated data below:
 
-![](non-technical_guide_files/figure-html/figure%20simulated%20data-1.png)**Figure
-1**: Simulated Data with abrupt changes in trend, outliers, and
-heteroskedastic noise term.
+![Simulated time series with a piecewise linear trend, seasonal
+patterns, outliers and Gaussian
+noise.](non-technical_guide_files/figure-html/figure%20simulated%20data-1.png)**Figure
+1**: Simulated Data with abrupt changes in trend, outliers, and Gaussian
+noise with constant standard deviation 5.
 
 BASTION is fitted along with three other existing methods for
 comparison:
@@ -31,9 +33,9 @@ comparison:
 3.  **STR** by (Dokumentov & Hyndman, 2022).
 
 ``` r
+
 #devtools::install_github("Jasoncho0914/BASTION")
 library(BASTION)
-#running below takes about 2 ~ 3 minutes total.
 set.seed(40)
 BASTION_sim = fit_BASTION(y = y[,"y"],
                       Ks = list(7,30),
@@ -41,7 +43,13 @@ BASTION_sim = fit_BASTION(y = y[,"y"],
                       cl= 0.95,
                       obsSV = "const",
                       nsave = 2000,
-                      nburn = 5000)
+                      nburn = 5000,
+                      nchains = 2,
+                      nskip = 4,
+                      D_trend = 2,
+                      sparse = FALSE,
+                      verbose = FALSE,
+                      save_samples = TRUE)
 y_ts <- forecast::msts(y[,"y"], seasonal.periods=c(7,30))
 TBATS = forecast::tbats(y_ts)
 TBATScomp = forecast::tbats.components(TBATS)
@@ -50,45 +58,47 @@ MSTL = forecast::mstl(y_ts)
 ```
 
 One of the defining characteristic of the simulated data we see above is
-the presence of abrupt changes in trend which occur around t = 199, 250,
-and 402.
+the presence of abrupt changes in trend which occur around t = 121, 158,
+and 259.
 
-![](non-technical_guide_files/figure-html/figures_trend-1.png)**Figure
+![Trend estimates from BASTION, TBATS, STR and MSTL compared with the
+known simulated
+trend.](non-technical_guide_files/figure-html/figures_trend-1.png)**Figure
 2**: The true trend component drawn in black and the estimated trend
 component by TBATS, MSTL, STR, and BASTION are drawn in blue. Dotted
-lines represent 95 percent confidence intervals for TBATS and credible
-regions for STR.
+lines represent BASTION’s 95 percent credible intervals and STR’s 95
+percent confidence intervals.
 
 ``` r
+
 print(paste0(
   "STR (Empirical Coverage): ",
   sum(as.numeric(STR$output$predictors[[1]]$upper) > y[,"trend"] & 
       as.numeric(STR$output$predictors[[1]]$lower) < y[,"trend"])/length(y[,"trend"])*100,
   "%"))
-#> [1] "STR (Empirical Coverage): 78.8%"
+#> [1] "STR (Empirical Coverage): 79%"
 print(paste0(
   "BASTION (Empirical Coverage): ",
-  sum(as.numeric(BASTION_sim$summary$Trend_sum$CR_upper) > y[,"trend"] & 
-      as.numeric(BASTION_sim$summary$Trend_sum$CR_lower) < y[,"trend"])/length(y[,"trend"])*100,
+  sum(as.numeric(BASTION_sim$intervals$upper$trend) > y[,"trend"] & 
+      as.numeric(BASTION_sim$intervals$lower$trend) < y[,"trend"])/length(y[,"trend"])*100,
   "%"))
-#> [1] "BASTION (Empirical Coverage): 100%"
+#> [1] "BASTION (Empirical Coverage): 98.4%"
 ```
 
 Notice that BASTION provides:
 
-- **Adaptive Trend Estimate**: BASTION successfully capture the abrupt
-  changes resulting in the lowest mean squared error (MSE), while also
-  providing smooth estimate.
-- **Robust Uncertainty Quantification**: BASTION achieves 100 percent
-  empirical coverage based on its credible region. Only other existing
-  decomposition method that provides uncertainty quantification is STR
-  (Dokumentov & Hyndman, 2022), the confidence interval provided by STR
-  vastly under-covers with 78.8 percent empirical coverage.
+- **Adaptive Trend Estimate**: BASTION captures the abrupt changes while
+  providing smooth estimates within each segment. It achieves the lowest
+  trend mean squared error (MSE) among the four methods in this example.
+- **Robust Uncertainty Quantification**: BASTION’s 95 percent credible
+  intervals achieve 98.4 percent empirical coverage of the true trend.
+  STR (Dokumentov & Hyndman, 2022) provides 95 percent confidence
+  intervals with 79 percent empirical coverage.
 
 ## 3. Daily Electricity Demand in New York State.
 
 Let’s apply BASTION to a real-world dataset by analyzing the average
-daily electricity demand (measured in megawatts per hour) for New York
+daily electricity demand (measured in megawatts (MW)) for New York
 State. This dataset, sourced from the New York Independent System
 Operator (NYISO) via the U.S. Energy Information Administration ((EIA),
 2024), exhibits a complex long-term trend, intricate seasonal patterns,
@@ -96,9 +106,9 @@ and heteroskedastic noise. Through time-series decomposition, we will
 demonstrate how BASTION effectively reveals underlying patterns that are
 otherwise obscured by noise.
 
-    #> Welcome to BASTION!
-
-![](non-technical_guide_files/figure-html/figures%20electricity-1.png)**Figure
+![Daily average electricity demand in New York State from July 2015
+through June
+2024.](non-technical_guide_files/figure-html/figures%20electricity-1.png)**Figure
 3**: Daily average electricity demand in New York State from July 1,
 2015, to June 30, 2024. The data represent the average hourly
 electricity demand for each day, aggregated from hourly observations.
@@ -116,7 +126,9 @@ Based on the raw data, we see the following:
 
 ### 3.1 Decomposition with BASTION
 
-![](non-technical_guide_files/figure-html/figures%20electricity%20BASTION-1.png)**Figure
+![Estimated trend, weekly and yearly seasonal components, and
+observation standard deviation for New York electricity
+demand.](non-technical_guide_files/figure-html/figures%20electricity%20BASTION-1.png)**Figure
 4**: Decomposition of the trend, weekly seasonality, yearly seasonality,
 and volatility using BASTION for daily average electricity demand from
 July 1, 2015, to June 30, 2024. Dark grey regions represent the 95%
@@ -127,36 +139,32 @@ Notice that BASTION reveals patterns that are not apparent in the raw
 data:
 
 - **Trend Component**:
-  - A noticeable dip is observed during the winter of 2015–2016, driven
-    by a warmer-than-usual winter caused by a strong El Niño effect,
-    which reduced heating needs.
-  - From January 2016 to April 2016, electricity demand steadily
-    increased, likely due to a colder-than-usual spring in early 2016
-    that extended heating needs.
-  - During the summer of 2016, electricity demand peaked, reflecting
-    increased air conditioning usage during one of the hottest summers
-    on record.
-  - A noticeable dip in late 2019 likely reflects the impact of
-    COVID-19-related shutdowns.
+  - The estimated trend dips during the winter of 2015–2016 before
+    recovering to a local peak in the summer of 2016.
+  - A gradual decline follows over the next several years.
+  - A pronounced drop appears in spring 2020, followed by a partial
+    recovery.
+  - BASTION separates these longer-term movements from the recurring
+    weekly and yearly patterns.
 - **Seasonality**:
-  - In addition to the yearly seasonal pattern driven by weather, weekly
-    pattern reveals that electricity demand is steady on weekdays and
-    decreases on weekends, consistent with common usage patterns.
+  - The yearly component captures a strong summer peak, a smaller winter
+    rise, and lower demand in spring and fall.
+  - The weekly component distinguishes higher weekday demand from lower
+    weekend demand.
 - **Volatility**:
-  - BASTION’s time-varying volatility estimate highlights
-    heteroskedasticity in the noise term, with volatility also
-    exhibiting seasonal patterns.
-  - Higher volatility is observed in winter months, while lower
-    volatility occurs during summer, closely aligning with the yearly
-    seasonality pattern.
-  - BASTION uniquely models volatility directly, providing insights that
-    other decomposition methods cannot.
+  - BASTION directly estimates changes in observation variability over
+    time.
+  - The volatility estimate distinguishes relatively stable periods from
+    episodes of increased variability and captures several pronounced
+    spikes.
 
 ### 3.2 Comparisons to Other Models
 
 I would like to direct our attention to the yearly seasonal estimates in
-comparison with the ones produced by the three existing models.
-![](non-technical_guide_files/figure-html/Electricity%20comparison-1.png)**Figure
+comparison with the ones produced by the three existing models. ![Yearly
+seasonal estimates from TBATS, MSTL, STR and BASTION for New York
+electricity demand from July 2015 to June
+2017.](non-technical_guide_files/figure-html/Electricity%20comparison-1.png)**Figure
 5**: Yearly seasonality estimates for daily average electricity demand
 in New York from July 2015 to June 2017. Estimates from TBATS, MSTL,
 STR, and BASTION are displayed respectively.
@@ -167,9 +175,9 @@ STR, and BASTION are displayed respectively.
   fall as temperatures moderate, and a rise in winter reflecting heating
   requirements.
 
-- **Holiday Season Effect**: BASTION and MSTL detect a 30-day dip in
-  demand (mid-December to mid-January) during the holiday season,
-  reflecting reduced commercial and industrial activity.
+- **Holiday Season Effect**: BASTION and MSTL capture a localized dip
+  around the turn of the year, alongside the broader winter seasonal
+  pattern.
 
 - **BASTION’s Strength**: BASTION excels at detecting subtle seasonal
   changes while maintaining smooth, accurate estimates of components.
@@ -183,7 +191,7 @@ capture nuanced seasonal patterns and abrupt changes in the data makes
 it a valuable tool for real-world applications.
 
 For technical details of BASTION, see the [main
-paper](https://jasoncho0914.github.io/pdf/BASTION_20250124.pdf).
+paper](https://proceedings.mlr.press/v300/cho26a.html).
 
 ## References
 

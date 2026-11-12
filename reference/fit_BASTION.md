@@ -1,129 +1,204 @@
-# Decomposition of time series data with Bayesian Adaptive Seasonality Trend decomposition Incorporating Outlier and Noise (BASTION)
+# BASTION decomposition
 
-decompose time series data using BASTION. The time series should be a
-vector.
+Bayesian trend and seasonal decomposition with locally adaptive priors.
 
 ## Usage
 
 ``` r
-fit_BASTION(
-  y,
-  Ks,
-  X = NULL,
-  Outlier = FALSE,
-  cl = 0.95,
-  sparse = FALSE,
-  obsSV = "const",
-  nchains = 2,
-  nsave = 1000,
-  nburn = 1000,
-  nskip = 4,
-  verbose = TRUE,
-  save_samples = FALSE
-)
+fit_BASTION(y, Ks, X = NULL, Outlier = FALSE, cl = 0.95,
+  sparse = FALSE, obsSV = "const", nchains = 2, nsave = 1000,
+  nburn = 1000, nskip = 4, verbose = TRUE, save_samples = FALSE,
+  D_trend = 2L)
 ```
 
 ## Arguments
 
 - y:
 
-  numeric vector of the `T x 1` vector of time series observations
+  Numeric observation vector or univariate time series.
 
 - Ks:
 
-  list of values containing the seasonal periods
+  List of fixed seasonal periods.
 
 - X:
 
-  matrix for additional covariate for regression (default is NULL)
+  Optional regression design matrix.
 
 - Outlier:
 
-  logical flag (default is FALSE) to model outlier
+  Include outliers with a horseshoe+ prior at all observations (default
+  FALSE).
 
 - cl:
 
-  scalar between (0,1) for confidence leve (default is 0.95)
+  Pointwise credible interval probability.
 
 - sparse:
 
-  logical flag (default is FALSE) to induce additional shrinkage to the
-  trend estimate
+  Additional trend shrinkage option.
 
 - obsSV:
 
-  options for modeling the error variance. It must be one of the
-  following:
-
-  - const: Constant error variance for all time points.
-
-  - SV: Stochastic Volatility model.
+  Observation variance model: "const" or "SV".
 
 - nchains:
 
-  integer scalar for the number of chains for MCMC sampling (default is
-  2)
+  Number of chains.
 
 - nsave:
 
-  integer scalar (default = 1000); number of MCMC iterations to record
+  Saved draws per chain.
 
 - nburn:
 
-  integer scalar (default = 1000); number of MCMC iterations to discard
-  (burn-in)
+  Burn-in sweeps per chain.
 
 - nskip:
 
-  integer scalar (default = 4); number of MCMC iterations to skip
-  between saving iterations, i.e., save every (nskip + 1)th draw
+  Discarded sweeps between saves; save every nskip+1 sweeps.
 
 - verbose:
 
-  logical; report extra information on progress if true. Defaults to
-  FALSE
+  Display progress.
 
 - save_samples:
 
-  logical; save and return posterior samples of each components if true.
-  Default is FALSE
+  Include posterior draws under `draws`.
+
+- D_trend:
+
+  Trend difference order, 1 or 2 (default 2).
 
 ## Value
 
-`fit_BASTION` returns an object class list.
+An object of class `bastion_fit`. Let T be the number of observations, M
+the number of decomposition columns (including residual), D the total
+saved draws, K a seasonal period, and p the number of regression
+coefficients.
 
-## `summary`
+- time:
 
-A list providing summarized posterior estimates:
+  Observation times, length T. Uses `time(y)` for a time series and
+  observation numbers otherwise.
 
-- `p_means`: A matrix containing the posterior means of the observed
-  data (`y`) and each decomposed component: **Trend**, **Seasonality**,
-  and **Outlier**, if applicable.
+- observed:
 
-- `Trend_sum`: A matrix containing the posterior mean and 95% credible
-  interval of the trend estimate.
+  Supplied observations, length T.
 
-- `Seasonal"k"_sum`: A matrix containing the posterior mean and 95%
-  credible interval of the seasonal estimate, where `"k"` is determined
-  by the input.
+- components:
 
-- `Outlier_sum`: A matrix containing the posterior mean and 95% credible
-  interval of the outlier component.
+  T by M data frame of posterior means. Columns are `trend`,
+  `seasonal_<period>`, `regression`/`outlier` when fitted, and
+  `residual`.
 
-## `samples`
+- intervals:
 
-(returned only when `save_samples` = TRUE) A list containing MCMC
-samples of the relevant parameters:
+  `lower` and `upper`, T by M data frames with matching component names
+  and order.
 
-- `beta_combined`: Posterior samples of **Trend + Seasonality**.
+- seasonality:
 
-- `beta`: Posterior samples of each component excluding the remainder.
+  One named entry per seasonal component. Each contains `recurring`, a K
+  by 3 data frame with mean, lower, upper; and `deviation`, a T by 3
+  data frame with mean, lower, upper.
 
-- `obs_sigma_t2`: Posterior samples of the variance of the observation
-  equation.
+- regression:
 
-- `evol_sigma_t2`: Posterior samples of the evolution error term.
+  When fitted, `coefficients` is a p by 4 data frame with term, mean,
+  lower, upper. Unnamed covariates use beta_1, beta_2, etc.
 
-- `remainder`: Posterior samples of the remainder term.
+- noise:
 
-- `yhat`: Posterior samples of the signal + error term.
+  `sd` has T rows for SV or one row for constant SD, with mean, lower,
+  upper. Under SV, `parameters` has three rows with parameter, mean,
+  lower, upper.
+
+- metadata:
+
+  Fitting metadata includes `cl`, the credible-interval probability, and
+  `alpha = 1 - cl`. Input seasonal periods, fitting arguments, and
+  recurring positions under mapping\$recurring_positions.
+
+- draws:
+
+  Present only when `save_samples=TRUE`. `index` is a D by 3 data frame
+  (draw, chain, iteration); `components` is D by T by M, including
+  residuals. Each `seasonality` entry contains D by K `recurring` and D
+  by T `deviation` matrices. Optional `regression$coefficients` is D
+  by p. `noise$sd` is D by T under SV or D by 1 otherwise; SV
+  `noise$parameters` is D by 3 (mu, phi, innovation_sd).
+
+## Details
+
+BASTION decomposes a time series into a locally adaptive trend, one or
+more seasonal components, and optional regression and outlier
+components. The components are estimated jointly using Bayesian
+inference.
+
+Supply seasonal periods in numbers of observations through `Ks`. For
+example, use `list(12)` for yearly seasonality in monthly data, or
+`list(7, 365)` for weekly and yearly seasonality in daily data. Each
+seasonal component combines a common recurring pattern with deviations
+that allow the pattern to evolve across cycles.
+
+The trend uses second differences by default (`D_trend = 2`). Use
+`D_trend = 1` for first differences. Setting `sparse = TRUE` applies
+stronger shrinkage to trend differences while retaining local
+adaptivity.
+
+Use `obsSV = "const"` for constant observation variance or
+`obsSV = "SV"` to estimate observation variability over time. Set
+`Outlier = TRUE` to estimate a separate outlier component, and supply
+`X` to include regression effects.
+
+Component estimates and observation standard deviations are returned in
+the units of the supplied data. Posterior means and credible intervals
+at the level specified by `cl` are returned whether or not posterior
+draws are retained. Set `save_samples = TRUE` to retain the draws.
+
+Use [`print()`](https://rdrr.io/r/base/print.html) for an overview of
+the fit, [`summary()`](https://rdrr.io/r/base/summary.html) for the
+component estimates,
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) for the
+decomposition, and
+[`plot_component()`](https://jasoncho0914.github.io/BASTION/reference/plot_component.md)
+to inspect an individual component with credible intervals.
+
+## See also
+
+[`simulate_BASTION`](https://jasoncho0914.github.io/BASTION/reference/simulate_BASTION.md)
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Daily observations with fixed weekly and yearly periods
+sim <- simulate_BASTION("daily", seed = 20)
+fit_daily <- fit_BASTION(
+  y = sim$y,
+  Ks = list(7, 365),
+  obsSV = "const", nchains = 1
+)
+plot(fit_daily)
+plot_component(fit_daily, "seasonal_365", part = "recurring")
+
+# A pattern repeating every 14 observations
+sim <- simulate_BASTION("biweekly", seed = 21)
+fit_biweekly <- fit_BASTION(
+  y = sim$y,
+  Ks = list(14),
+  obsSV = "const", nchains = 1
+)
+plot_component(fit_biweekly, "seasonal_14")
+
+# Hourly observations with daily and weekly periods
+sim <- simulate_BASTION("hourly", seed = 22)
+fit_hourly <- fit_BASTION(
+  y = sim$y,
+  Ks = list(24, 168),
+  obsSV = "const", nchains = 1
+)
+plot(fit_hourly)
+} # }
+```
